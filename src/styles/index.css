@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-primary-bg text-brand-dark font-body antialiased;
+    overflow-x: clip;
+  }
+  h1, h2, h3, h4 {
+    @apply font-heading;
+  }
+  ::selection {
+    background: rgba(197, 160, 89, 0.35);
+  }
+  input[type='date']::-webkit-calendar-picker-indicator,
+  input[type='time']::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.55;
+  }
+}
+
+@layer components {
+  .container-lux {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12;
+  }
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent-gold to-accent-gold-deep px-7 py-3 text-sm font-bold uppercase tracking-widest text-white shadow-gold transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lift hover:brightness-105 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-brand-dark/30 bg-transparent px-7 py-3 text-sm font-bold uppercase tracking-widest text-brand-dark transition-all duration-300 ease-in-out hover:border-brand-dark hover:bg-brand-dark hover:text-primary-bg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold tracking-wide text-brand-light transition-colors duration-300 hover:text-accent-gold-deep;
+  }
+  .input-lux {
+    @apply w-full rounded-xl border border-brand-dark/15 bg-white/80 px-4 py-3 text-sm text-brand-dark placeholder-brand-light/50 outline-none transition-all duration-300 focus:border-accent-gold focus:ring-1 focus:ring-accent-gold;
+  }
+  .input-line {
+    @apply w-full border-b border-brand-dark/20 bg-transparent px-1 py-2.5 text-sm text-brand-dark placeholder-brand-light/45 outline-none transition-colors duration-300 focus:border-accent-gold;
+  }
+  .label-lux {
+    @apply mb-1.5 block text-xs font-bold uppercase tracking-widest text-brand-light;
+  }
+  .card-lux {
+    @apply rounded-2xl border border-brand-dark/5 bg-white shadow-card;
+  }
+  .chip-gold {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-accent-gold-soft px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-gold-deep;
+  }
+  .section-eyebrow {
+    @apply mb-3 text-xs font-bold uppercase tracking-[0.3em] text-accent-gold-deep;
+  }
+  .skeleton {
+    @apply relative overflow-hidden rounded-2xl bg-secondary-bg;
+    background-image: linear-gradient(
+      90deg,
+      rgba(243, 239, 234, 0) 0px,
+      rgba(255, 255, 255, 0.85) 120px,
+      rgba(243, 239, 234, 0) 240px
+    );
+    background-size: 800px 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .blend-mask {
+    -webkit-mask-image: radial-gradient(ellipse 95% 105% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 72%, transparent 98%);
+    mask-image: radial-gradient(ellipse 95% 105% at 50% 50%, black 40%, rgba(0, 0, 0, 0.5) 72%, transparent 98%);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .marquee-paused:hover .animate-marquee,
+  .marquee-paused:hover .animate-marqueeSlow {
+    animation-play-state: paused;
+  }
+}
