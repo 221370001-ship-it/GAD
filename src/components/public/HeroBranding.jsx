@@ -74,7 +74,7 @@ export default function HeroBranding() {
             <img
               src={lockup}
               alt="GAD Aesthetic Clinic — By Dr. Abdullah Asif"
-              className="blend-mask h-auto w-[min(100vw,132vh)] max-w-full object-contain"
+              className="blend-mask mx-auto h-auto w-full max-w-[1200px] object-contain"
             />
 
             {/* Twinkle accents pinned beside the lockup */}
