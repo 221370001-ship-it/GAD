@@ -11,9 +11,11 @@ import {
   Database,
   TrendingUp,
   Package,
+  BellRing,
+  CheckCircle2,
 } from 'lucide-react';
 import useCollection from '../../hooks/useCollection';
-import { seedStarterData } from '../../firebase/services';
+import { seedStarterData, updateDocument } from '../../firebase/services';
 import { seedCategories, seedTreatments, seedDeals, seedProducts } from '../../utils/seedData';
 import { useToast } from '../../context/ToastContext';
 import { GoldSpinner } from '../../components/common/Spinner';
@@ -59,7 +61,37 @@ export default function AdminDashboard() {
 
   const pending = appointments.filter((a) => a.status === 'pending').length;
   const unread = messages.filter((m) => !m.read).length;
-  const revenue = invoices.reduce((sum, inv) => sum + Number(inv.finalTotal || 0), 0);
+  
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const todayInvoices = invoices.filter(inv => {
+    if (!inv.createdAt) return false;
+    const date = inv.createdAt.toDate ? inv.createdAt.toDate() : new Date(inv.createdAt);
+    return date >= startOfToday;
+  });
+
+  const todayRevenue = todayInvoices.reduce((sum, inv) => sum + Number(inv.finalTotal || 0), 0);
+
+  const fifteenDaysAgo = new Date();
+  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+
+  const reminders = invoices.filter(inv => {
+    if (inv.reminderDismissed) return false;
+    if (!inv.createdAt) return false;
+    const date = inv.createdAt.toDate ? inv.createdAt.toDate() : new Date(inv.createdAt);
+    return date <= fifteenDaysAgo;
+  });
+
+  async function dismissReminder(id) {
+    try {
+      await updateDocument('invoices', id, { reminderDismissed: true });
+      toast('Reminder marked as completed.', 'success');
+    } catch (err) {
+      console.error(err);
+      toast('Failed to dismiss reminder.', 'error');
+    }
+  }
 
   async function handleSeed() {
     setSeeding(true);
@@ -128,16 +160,16 @@ export default function AdminDashboard() {
         />
         <StatCard
           icon={ReceiptText}
-          label="Invoices Issued"
-          value={invoices.length}
+          label="Invoices Issued (Today)"
+          value={todayInvoices.length}
           accent="bg-violet-100 text-violet-700"
           delay={0.25}
           to="/admin/invoices"
         />
         <StatCard
           icon={TrendingUp}
-          label="Billed Revenue (PKR)"
-          value={revenue.toLocaleString()}
+          label="Billed Revenue (Today)"
+          value={todayRevenue.toLocaleString()}
           accent="bg-emerald-100 text-emerald-700"
           delay={0.3}
         />
@@ -241,6 +273,38 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
       </div>
+
+      {/* Reminders */}
+      <motion.div
+        initial={{ opacity: 0, y: 22 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.45 }}
+        className="card-lux p-6"
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="font-heading text-lg font-semibold text-brand-dark flex items-center gap-2">
+            <BellRing size={18} className="text-rose-500" /> Customer Reminders
+          </h3>
+        </div>
+        <div className="space-y-3">
+          {reminders.map((r) => (
+            <div key={r.id} className="flex items-center justify-between rounded-xl bg-rose-50/50 px-4 py-3 border border-rose-100">
+              <div>
+                <p className="text-sm font-bold text-brand-dark">{r.customerName} · {r.customerPhone}</p>
+                <p className="text-xs text-brand-light">
+                  Invoice {r.invoiceNumber} · {formatDate(r.createdAt)}
+                </p>
+              </div>
+              <button onClick={() => dismissReminder(r.id)} className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-600 shadow-sm transition-all hover:bg-emerald-50">
+                <CheckCircle2 size={14} /> Done
+              </button>
+            </div>
+          ))}
+          {reminders.length === 0 && (
+            <p className="py-6 text-center text-sm text-brand-light/70">No pending reminders.</p>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 }

@@ -17,6 +17,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { GoldSpinner } from '../../components/common/Spinner';
 import { formatPrice, cn } from '../../utils/helpers';
+import logo from '../../assets/footer-logo.png';
 
 function SearchRow({ icon: Icon, title, subtitle, price, onClick }) {
   return (
@@ -128,6 +129,10 @@ export default function BillingSoft() {
         user?.email || 'staff'
       );
       setLastInvoice({ invoiceNumber, finalTotal });
+      
+      // Print the receipt
+      printReceipt(invoiceNumber, customer, cart, subtotal, discountTotal, finalTotal);
+
       setCart([]);
       setCustomer({ name: '', phone: '' });
       setManualDiscount(0);
@@ -138,6 +143,80 @@ export default function BillingSoft() {
     } finally {
       setSaving(false);
     }
+  }
+
+  function printReceipt(invoiceNum, cust, items, sub, disc, final) {
+    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    if (!printWindow) return toast('Pop-up blocked. Could not print.', 'error');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Receipt - ${invoiceNum}</title>
+          <style>
+            body { font-family: 'Courier New', Courier, monospace; font-size: 12px; margin: 0; padding: 10px; width: 280px; color: #000; }
+            .text-center { text-align: center; }
+            .font-bold { font-weight: bold; }
+            .logo { width: 140px; margin: 0 auto 10px; display: block; filter: grayscale(100%); }
+            .divider { border-bottom: 1px dashed #000; margin: 8px 0; }
+            .flex { display: flex; justify-content: space-between; }
+            .mt-2 { margin-top: 8px; }
+            .mb-2 { margin-bottom: 8px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { text-align: left; padding: 4px 0; font-size: 11px; }
+            th.right, td.right { text-align: right; }
+          </style>
+        </head>
+        <body>
+          <img src="${logo}" class="logo" alt="GAD Logo" onload="window.print(); window.close();" onerror="window.print(); window.close();" />
+          
+          <div class="text-center mb-2 font-bold" style="font-size: 14px;">GAD AESTHETIC CLINIC</div>
+          <div class="text-center mb-2">By Dr. Abdullah</div>
+          
+          <div class="divider"></div>
+          <div class="flex"><span>Invoice:</span> <span>${invoiceNum}</span></div>
+          <div class="flex"><span>Date:</span> <span>${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</span></div>
+          <div class="divider"></div>
+          <div class="flex"><span>Name:</span> <span>${cust.name}</span></div>
+          <div class="flex"><span>Phone:</span> <span>${cust.phone}</span></div>
+          <div class="divider"></div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th class="right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(item => 
+                '<tr>' +
+                  '<td style="max-width: 130px; word-wrap: break-word;">' + item.name + '</td>' +
+                  '<td>x' + item.quantity + '</td>' +
+                  '<td class="right">' + (item.priceAtBilling * item.quantity) + '</td>' +
+                '</tr>'
+              ).join('')}
+            </tbody>
+          </table>
+          
+          <div class="divider"></div>
+          <div class="flex"><span>Subtotal:</span> <span>Rs ${sub}</span></div>
+          <div class="flex"><span>Discount:</span> <span>Rs ${disc}</span></div>
+          <div class="divider font-bold" style="border-width: 2px;"></div>
+          <div class="flex font-bold" style="font-size: 15px;"><span>Total:</span> <span>Rs ${final}</span></div>
+          <div class="divider font-bold" style="border-width: 2px;"></div>
+          
+          <div class="text-center mt-2">Thank you for visiting!</div>
+          <div class="text-center mt-2" style="font-size: 10px; margin-top: 20px;">Software by Software Alliance</div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
   }
 
   return (
@@ -296,7 +375,7 @@ export default function BillingSoft() {
 
           <button onClick={generateBill} disabled={saving} className="btn-gold mt-5 w-full">
             {saving ? <GoldSpinner size={16} className="border-white/30 border-t-white" /> : <ReceiptText size={15} />}
-            {saving ? 'Saving…' : 'Generate & Save Bill'}
+            {saving ? 'Saving…' : 'Save and Print Bill'}
           </button>
         </div>
 
