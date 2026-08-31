@@ -158,7 +158,7 @@ export default function BillingSoft() {
             body { font-family: 'Courier New', Courier, monospace; font-size: 12px; margin: 0; padding: 10px; width: 280px; color: #000; }
             .text-center { text-align: center; }
             .font-bold { font-weight: bold; }
-            .logo { width: 140px; margin: 0 auto 10px; display: block; filter: grayscale(100%); }
+            .logo { width: 240px; margin: 0 auto 15px; display: block; filter: grayscale(100%); }
             .divider { border-bottom: 1px dashed #000; margin: 8px 0; }
             .flex { display: flex; justify-content: space-between; }
             .mt-2 { margin-top: 8px; }
@@ -170,9 +170,6 @@ export default function BillingSoft() {
         </head>
         <body>
           <img src="${logo}" class="logo" alt="GAD Logo" onload="window.print(); window.close();" onerror="window.print(); window.close();" />
-          
-          <div class="text-center mb-2 font-bold" style="font-size: 14px;">GAD AESTHETIC CLINIC</div>
-          <div class="text-center mb-2">By Dr. Abdullah</div>
           
           <div class="divider"></div>
           <div class="flex"><span>Invoice:</span> <span>${invoiceNum}</span></div>
@@ -209,7 +206,7 @@ export default function BillingSoft() {
           <div class="divider font-bold" style="border-width: 2px;"></div>
           
           <div class="text-center mt-2">Thank you for visiting!</div>
-          <div class="text-center mt-2" style="font-size: 10px; margin-top: 20px;">Software by Software Alliance</div>
+          <div class="text-center mt-2" style="font-size: 10px; margin-top: 20px;">Software by Abdullah</div>
         </body>
       </html>
     `;
