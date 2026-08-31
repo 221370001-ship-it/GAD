@@ -65,11 +65,11 @@ export default function BillingSoft() {
     const t = treatments
       .filter((x) => `${x.name} ${x.category}`.toLowerCase().includes(debounced))
       .slice(0, 6)
-      .map((x) => ({ key: `t-${x.id}`, type: 'treatment', id: x.id, name: x.name, subtitle: x.category || 'Treatment', price: Number(x.discountedPrice ?? x.originalPrice ?? 0), allowQty: false }));
+      .map((x) => ({ key: `t-${x.id}`, type: 'treatment', id: x.id, name: x.name, subtitle: x.category || 'Treatment', price: Number(x.discountedPrice ?? x.originalPrice ?? 0), allowQty: true }));
     const d = deals
       .filter((x) => (x.title || '').toLowerCase().includes(debounced))
       .slice(0, 4)
-      .map((x) => ({ key: `d-${x.id}`, type: 'deal', id: x.id, name: x.title, subtitle: 'Package Deal', price: Number(x.discountedPrice ?? x.originalPrice ?? 0), allowQty: false }));
+      .map((x) => ({ key: `d-${x.id}`, type: 'deal', id: x.id, name: x.title, subtitle: 'Package Deal', price: Number(x.discountedPrice ?? x.originalPrice ?? 0), allowQty: true }));
     const p = products
       .filter((x) => (x.name || '').toLowerCase().includes(debounced))
       .slice(0, 6)

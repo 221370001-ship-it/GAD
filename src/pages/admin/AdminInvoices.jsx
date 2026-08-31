@@ -73,12 +73,12 @@ export default function AdminInvoices() {
       <div className="flex items-center justify-between">
         <h2 className="font-heading text-xl font-bold text-brand-dark">Invoice Directory</h2>
         {!isSuperAdmin ? (
-          <button onClick={handleSuperAdmin} className="flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-bold uppercase tracking-widest text-rose-600 transition-colors hover:bg-rose-100">
-            <Lock size={14} /> Super Admin
+          <button type="button" onClick={handleSuperAdmin} className="relative z-10 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-600 transition-colors hover:bg-rose-100 sm:gap-2 sm:px-4 sm:text-xs">
+            <Lock size={14} /> <span className="hidden sm:inline">Super Admin</span><span className="sm:hidden">Admin</span>
           </button>
         ) : (
-          <button onClick={deactivateSuperAdmin} className="flex items-center gap-2 rounded-full bg-rose-600 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white shadow-soft transition-colors hover:bg-rose-700 cursor-pointer">
-            <ShieldAlert size={14} /> Super Admin Active <X size={14} className="ml-1 opacity-70" />
+          <button type="button" onClick={deactivateSuperAdmin} className="relative z-10 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-rose-600 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-white shadow-soft transition-colors hover:bg-rose-700 sm:gap-2 sm:px-4 sm:text-xs">
+            <ShieldAlert size={14} /> <span className="hidden sm:inline">Super Admin Active</span><span className="sm:hidden">Active</span> <X size={14} className="ml-0.5 opacity-70 sm:ml-1" />
           </button>
         )}
       </div>

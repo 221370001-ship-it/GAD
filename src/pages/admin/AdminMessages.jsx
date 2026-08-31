@@ -50,10 +50,10 @@ export default function AdminMessages() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         {filtered.map((m) => (
-          <button
+          <div
             key={m.id}
             onClick={() => markRead(m)}
-            className={cn('card-lux p-6 text-left transition-all', !m.read && 'border-accent-gold/40 shadow-gold')}
+            className={cn('card-lux p-6 text-left transition-all cursor-pointer', !m.read && 'border-accent-gold/40 shadow-gold')}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -83,7 +83,29 @@ export default function AdminMessages() {
             <p className="mt-3 rounded-xl bg-secondary-bg/60 px-4 py-3 text-sm leading-relaxed text-brand-dark/85">
               {m.message}
             </p>
-          </button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {m.phone && (
+                <a
+                  href={`https://wa.me/${m.phone.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-600 transition-colors hover:bg-emerald-100"
+                >
+                  <Phone size={12} /> WhatsApp Reply
+                </a>
+              )}
+              {m.email && (
+                <a
+                  href={`mailto:${m.email}?subject=Reply from GAD Aesthetics Clinic`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100"
+                >
+                  <Mail size={12} /> Email Reply
+                </a>
+              )}
+            </div>
+          </div>
         ))}
       </div>
     </div>
