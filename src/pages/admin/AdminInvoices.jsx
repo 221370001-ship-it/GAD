@@ -1,4 +1,4 @@
-import { ReceiptText, Trash2, Lock, ShieldAlert, X } from 'lucide-react';
+import { ReceiptText, Trash2, Lock, ShieldAlert, X, Banknote, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import useCollection from '../../hooks/useCollection';
 import { deleteDocument, updateDocument } from '../../firebase/services';
@@ -103,6 +103,17 @@ export default function AdminInvoices() {
                 <p className="mt-1 text-sm text-brand-light">
                   {inv.customerName} · {inv.customerPhone}
                 </p>
+                {/* Payment Method Badge */}
+                <span className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ${
+                  inv.paymentMethod === 'online'
+                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                    : inv.paymentMethod === 'cash'
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-gray-50 text-gray-500 border border-gray-200'
+                }`}>
+                  {inv.paymentMethod === 'online' ? <Smartphone size={11} /> : inv.paymentMethod === 'cash' ? <Banknote size={11} /> : null}
+                  {inv.paymentMethod ? inv.paymentMethod : 'N/A'}
+                </span>
               </div>
             )}
             <div className="text-right">
@@ -157,6 +168,12 @@ export default function AdminInvoices() {
           </div>
 
           <div className="mt-4 flex flex-wrap justify-end gap-6 border-t border-brand-dark/8 pt-4 text-sm">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-brand-light/60">Payment</p>
+              <p className={`font-semibold capitalize ${inv.paymentMethod === 'online' ? 'text-blue-700' : inv.paymentMethod === 'cash' ? 'text-emerald-700' : 'text-gray-500'}`}>
+                {inv.paymentMethod || 'N/A'}
+              </p>
+            </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-brand-light/60">Subtotal</p>
               <p className="font-semibold text-brand-dark">{formatPrice(inv.subtotal)}</p>

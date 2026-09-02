@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -10,14 +10,16 @@ import {
   Sparkles,
   Tag,
   ShoppingBag,
+  Banknote,
+  Smartphone,
 } from 'lucide-react';
 import useCollection from '../../hooks/useCollection';
 import { createInvoice } from '../../firebase/services';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { GoldSpinner } from '../../components/common/Spinner';
-import { formatPrice, cn } from '../../utils/helpers';
-import logo from '../../assets/footer-logo.png';
+import { formatPrice, cn, CLINIC } from '../../utils/helpers';
+import { LOGO_BASE64 } from '../../assets/logoBase64';
 
 function SearchRow({ icon: Icon, title, subtitle, price, onClick }) {
   return (
@@ -38,6 +40,294 @@ function SearchRow({ icon: Icon, title, subtitle, price, onClick }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Receipt HTML builder — optimised for SpeedX SP-210 (80mm / 72mm printable)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+function buildReceiptHTML(invoiceNum, cust, items, sub, disc, final, paymentMethod) {
+  const dateStr = new Date().toLocaleDateString('en-PK', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+  const timeStr = new Date().toLocaleTimeString('en-PK', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  const itemRows = items
+    .map(
+      (item) =>
+        `<tr>
+          <td style="padding:4px 0;font-size:13px;word-wrap:break-word;max-width:140px;">${item.name}</td>
+          <td style="padding:4px 0;font-size:13px;text-align:center;">x${item.quantity}</td>
+          <td style="padding:4px 0;font-size:13px;text-align:right;font-weight:bold;">Rs ${(item.priceAtBilling * item.quantity).toLocaleString('en-PK')}</td>
+        </tr>`
+    )
+    .join('');
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Receipt - ${invoiceNum}</title>
+  <style>
+    /* ── SpeedX SP-210 — 80mm thermal paper, ~72mm printable area ── */
+    @page {
+      size: 72mm auto;
+      margin: 0mm;
+    }
+    @media print {
+      html, body {
+        width: 72mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 72mm;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      font-size: 13px;
+      color: #000;
+      background: #fff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .receipt {
+      width: 72mm;
+      padding: 4mm 3mm 6mm 3mm;
+    }
+    .center { text-align: center; }
+    .bold { font-weight: bold; }
+    .logo {
+      display: block;
+      width: 52mm;
+      max-width: 100%;
+      margin: 0 auto 3mm auto;
+      filter: grayscale(100%) contrast(1.5);
+    }
+    .clinic-name {
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 1mm;
+    }
+    .clinic-info {
+      font-size: 10px;
+      color: #333;
+      line-height: 1.5;
+      margin-bottom: 2mm;
+    }
+    .divider {
+      border: none;
+      border-bottom: 1px dashed #000;
+      margin: 3mm 0;
+    }
+    .divider-bold {
+      border: none;
+      border-bottom: 2px solid #000;
+      margin: 3mm 0;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 1px 0;
+      font-size: 13px;
+    }
+    .row .label { color: #333; }
+    .row .value { font-weight: bold; text-align: right; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2mm 0;
+    }
+    th {
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 0 4px 0;
+      border-bottom: 1px solid #000;
+      text-align: left;
+      color: #333;
+    }
+    th.r { text-align: right; }
+    th.c { text-align: center; }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 17px;
+      font-weight: bold;
+      padding: 2mm 0;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 4mm;
+      line-height: 1.6;
+    }
+    .footer-credit {
+      text-align: center;
+      font-size: 9px;
+      color: #888;
+      margin-top: 5mm;
+      padding-bottom: 3mm;
+    }
+    .payment-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      padding: 1px 8px;
+      border: 1px solid #000;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <!-- Logo -->
+    <img src="${LOGO_BASE64}" class="logo" alt="GAD" />
+
+    <!-- Clinic Info -->
+    <div class="center clinic-info">
+      ${CLINIC.address}<br>
+      Ph: ${CLINIC.phone}
+    </div>
+
+    <hr class="divider-bold">
+
+    <!-- Invoice Details -->
+    <div class="row"><span class="label">Invoice:</span><span class="value">${invoiceNum}</span></div>
+    <div class="row"><span class="label">Date:</span><span class="value">${dateStr} ${timeStr}</span></div>
+
+    <hr class="divider">
+
+    <!-- Customer Info -->
+    <div class="row"><span class="label">Customer:</span><span class="value">${cust.name}</span></div>
+    <div class="row"><span class="label">Phone:</span><span class="value">${cust.phone}</span></div>
+    <div class="row"><span class="label">Payment:</span><span class="value"><span class="payment-badge">${paymentMethod.toUpperCase()}</span></span></div>
+
+    <hr class="divider">
+
+    <!-- Items Table -->
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th class="c">Qty</th>
+          <th class="r">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemRows}
+      </tbody>
+    </table>
+
+    <hr class="divider">
+
+    <!-- Totals -->
+    <div class="row"><span class="label">Subtotal:</span><span class="value">Rs ${sub.toLocaleString('en-PK')}</span></div>
+    ${disc > 0 ? `<div class="row"><span class="label">Discount:</span><span class="value">- Rs ${disc.toLocaleString('en-PK')}</span></div>` : ''}
+
+    <hr class="divider-bold">
+
+    <div class="total-row">
+      <span>TOTAL:</span>
+      <span>Rs ${final.toLocaleString('en-PK')}</span>
+    </div>
+
+    <hr class="divider-bold">
+
+    <!-- Footer -->
+    <div class="footer">
+      Thank you for visiting!<br>
+      <span style="font-size:11px;">${CLINIC.website}</span>
+    </div>
+
+    <div class="footer-credit">Software by Abdullah</div>
+  </div>
+</body>
+</html>`;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   printViaIframe — reliable hidden-iframe print for thermal printers
+   • No popup blocker issues (iframe is same-origin, inline)
+   • No image race conditions (logo is base64)
+   • afterprint cleanup ensures exactly one print per call
+   ───────────────────────────────────────────────────────────────────────────── */
+
+function printViaIframe(html) {
+  return new Promise((resolve, reject) => {
+    // Remove any leftover print iframe from a previous call
+    const old = document.getElementById('__receipt_print_frame');
+    if (old) old.remove();
+
+    const iframe = document.createElement('iframe');
+    iframe.id = '__receipt_print_frame';
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;visibility:hidden;';
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(html);
+    iframeDoc.close();
+
+    // Safety timeout — if print dialog is never shown, clean up after 15s
+    const safetyTimer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Print timeout'));
+    }, 15000);
+
+    function cleanup() {
+      clearTimeout(safetyTimer);
+      // Small delay before removing iframe to let print spooler grab the content
+      setTimeout(() => {
+        try { iframe.remove(); } catch (_) { /* already removed */ }
+      }, 1000);
+    }
+
+    // Wait for the iframe content (including base64 image) to fully render
+    iframe.contentWindow.addEventListener('load', () => {
+      try {
+        // Listen for afterprint to know when the dialog closes
+        iframe.contentWindow.addEventListener('afterprint', () => {
+          cleanup();
+          resolve();
+        }, { once: true });
+
+        // Trigger print
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      } catch (err) {
+        cleanup();
+        reject(err);
+      }
+    });
+
+    // Fallback: if 'load' never fires (edge case), try after a delay
+    setTimeout(() => {
+      try {
+        if (iframe.parentNode) {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        }
+      } catch (_) { /* already handled */ }
+    }, 2000);
+  });
+}
+
 export default function BillingSoft() {
   const { data: treatments } = useCollection('treatments');
   const { data: deals } = useCollection('deals');
@@ -49,6 +339,7 @@ export default function BillingSoft() {
   const [debounced, setDebounced] = useState('');
   const [cart, setCart] = useState([]);
   const [customer, setCustomer] = useState({ name: '', phone: '' });
+  const [paymentMethod, setPaymentMethod] = useState('cash');
   const [manualDiscount, setManualDiscount] = useState(0);
   const [saving, setSaving] = useState(false);
   const [lastInvoice, setLastInvoice] = useState(null);
@@ -104,7 +395,7 @@ export default function BillingSoft() {
   const discountTotal = Math.max(0, Math.min(Number(manualDiscount) || 0, subtotal));
   const finalTotal = subtotal - discountTotal;
 
-  async function generateBill() {
+  const generateBill = useCallback(async () => {
     if (cart.length === 0) return toast('Add at least one item to the bill.', 'error');
     if (!customer.name.trim()) return toast('Please enter the customer name.', 'error');
     if (!customer.phone.trim()) return toast('Please enter the customer phone number.', 'error');
@@ -115,6 +406,7 @@ export default function BillingSoft() {
         {
           customerName: customer.name.trim(),
           customerPhone: customer.phone.trim(),
+          paymentMethod,
           items: cart.map((i) => ({
             type: i.type,
             refId: i.id,
@@ -129,12 +421,29 @@ export default function BillingSoft() {
         user?.email || 'staff'
       );
       setLastInvoice({ invoiceNumber, finalTotal });
-      
-      // Print the receipt
-      printReceipt(invoiceNumber, customer, cart, subtotal, discountTotal, finalTotal);
+
+      // Build receipt HTML and print via hidden iframe
+      const receiptHTML = buildReceiptHTML(
+        invoiceNumber,
+        customer,
+        cart,
+        subtotal,
+        discountTotal,
+        finalTotal,
+        paymentMethod
+      );
+
+      try {
+        await printViaIframe(receiptHTML);
+        toast(`${invoiceNumber} saved & sent to printer.`, 'success');
+      } catch (printErr) {
+        console.error('Print error:', printErr);
+        toast('Invoice saved but printing may have failed. Please check the printer.', 'error');
+      }
 
       setCart([]);
       setCustomer({ name: '', phone: '' });
+      setPaymentMethod('cash');
       setManualDiscount(0);
       setSearch('');
     } catch (err) {
@@ -143,78 +452,7 @@ export default function BillingSoft() {
     } finally {
       setSaving(false);
     }
-  }
-
-  function printReceipt(invoiceNum, cust, items, sub, disc, final) {
-    const printWindow = window.open('', '_blank', 'width=400,height=600');
-    if (!printWindow) return toast('Pop-up blocked. Could not print.', 'error');
-
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Receipt - ${invoiceNum}</title>
-          <style>
-            body { font-family: 'Courier New', Courier, monospace; font-size: 12px; margin: 0; padding: 10px; width: 280px; color: #000; }
-            .text-center { text-align: center; }
-            .font-bold { font-weight: bold; }
-            .logo { width: 240px; margin: 0 auto 15px; display: block; filter: grayscale(100%); }
-            .divider { border-bottom: 1px dashed #000; margin: 8px 0; }
-            .flex { display: flex; justify-content: space-between; }
-            .mt-2 { margin-top: 8px; }
-            .mb-2 { margin-bottom: 8px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            th, td { text-align: left; padding: 4px 0; font-size: 11px; }
-            th.right, td.right { text-align: right; }
-          </style>
-        </head>
-        <body>
-          <img src="${logo}" class="logo" alt="GAD Logo" onload="window.print(); window.close();" onerror="window.print(); window.close();" />
-          
-          <div class="divider"></div>
-          <div class="flex"><span>Invoice:</span> <span>${invoiceNum}</span></div>
-          <div class="flex"><span>Date:</span> <span>${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</span></div>
-          <div class="divider"></div>
-          <div class="flex"><span>Name:</span> <span>${cust.name}</span></div>
-          <div class="flex"><span>Phone:</span> <span>${cust.phone}</span></div>
-          <div class="divider"></div>
-          
-          <table>
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th class="right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${items.map(item => 
-                '<tr>' +
-                  '<td style="max-width: 130px; word-wrap: break-word;">' + item.name + '</td>' +
-                  '<td>x' + item.quantity + '</td>' +
-                  '<td class="right">' + (item.priceAtBilling * item.quantity) + '</td>' +
-                '</tr>'
-              ).join('')}
-            </tbody>
-          </table>
-          
-          <div class="divider"></div>
-          <div class="flex"><span>Subtotal:</span> <span>Rs ${sub}</span></div>
-          <div class="flex"><span>Discount:</span> <span>Rs ${disc}</span></div>
-          <div class="divider font-bold" style="border-width: 2px;"></div>
-          <div class="flex font-bold" style="font-size: 15px;"><span>Total:</span> <span>Rs ${final}</span></div>
-          <div class="divider font-bold" style="border-width: 2px;"></div>
-          
-          <div class="text-center mt-2">Thank you for visiting!</div>
-          <div class="text-center mt-2" style="font-size: 10px; margin-top: 20px;">Software by Abdullah</div>
-        </body>
-      </html>
-    `;
-
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-  }
+  }, [cart, customer, paymentMethod, subtotal, discountTotal, finalTotal, user, toast]);
 
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
@@ -283,6 +521,39 @@ export default function BillingSoft() {
               value={customer.phone}
               onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
             />
+          </div>
+
+          {/* Payment Method */}
+          <div className="mt-4 flex flex-col gap-2.5">
+            <span className="text-xs font-bold uppercase tracking-widest text-brand-light">Payment Method</span>
+            <div className="flex rounded-xl bg-secondary-bg/50 p-1 border border-brand-dark/5">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('cash')}
+                className={cn(
+                  'flex flex-1 items-center justify-center gap-2 rounded-lg py-3 text-sm font-bold transition-all duration-300',
+                  paymentMethod === 'cash'
+                    ? 'bg-white text-brand-dark shadow-sm ring-1 ring-brand-dark/5'
+                    : 'text-brand-light/60 hover:text-brand-dark hover:bg-white/50'
+                )}
+              >
+                <Banknote size={16} className={paymentMethod === 'cash' ? 'text-emerald-600' : 'text-brand-light/50'} />
+                Cash
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('online')}
+                className={cn(
+                  'flex flex-1 items-center justify-center gap-2 rounded-lg py-3 text-sm font-bold transition-all duration-300',
+                  paymentMethod === 'online'
+                    ? 'bg-white text-brand-dark shadow-sm ring-1 ring-brand-dark/5'
+                    : 'text-brand-light/60 hover:text-brand-dark hover:bg-white/50'
+                )}
+              >
+                <Smartphone size={16} className={paymentMethod === 'online' ? 'text-blue-600' : 'text-brand-light/50'} />
+                Online Transaction
+              </button>
+            </div>
           </div>
 
           {/* Cart */}
