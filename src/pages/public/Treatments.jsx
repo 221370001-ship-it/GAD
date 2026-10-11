@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Flower2 } from 'lucide-react';
@@ -11,10 +11,11 @@ import { CLINIC } from '../../utils/helpers';
 
 export default function Treatments() {
   const navigate = useNavigate();
-  const { data: categories, loading: catLoading } = useCollection('categories');
-  const { data: treatments, loading: treatLoading } = useCollection('treatments');
-
+  const { data: categories, loading: catLoading, error: catError } = useCollection('categories');
+  const { data: treatments, loading: treatLoading, error: treatError } = useCollection('treatments');
+  
   const loading = catLoading || treatLoading;
+  const error = catError || treatError;
 
   const cards = useMemo(() => {
     const sorted = [...categories].sort((a, b) => (a.order || 99) - (b.order || 99));
@@ -45,7 +46,15 @@ export default function Treatments() {
       <div className="container-lux mt-12">
         {loading && <SkeletonGrid count={6} />}
 
-        {!loading && cards.length === 0 && (
+        {!loading && error && (
+          <div className="card-lux bg-rose-50 p-6 sm:p-10 text-center border border-rose-200 mt-8 rounded-3xl">
+            <h3 className="text-xl font-bold text-rose-700 mb-2">Failed to load treatments</h3>
+            <p className="text-rose-600 mb-4">{error.message || 'An unknown error occurred while communicating with the database.'}</p>
+            <p className="text-sm text-rose-500">Please try refreshing the page. If the issue persists, contact support.</p>
+          </div>
+        )}
+
+        {!loading && !error && cards.length === 0 && (
           <EmptyState
             icon={Flower2}
             title="Categories are being curated"
@@ -53,7 +62,7 @@ export default function Treatments() {
           />
         )}
 
-        {!loading && cards.length > 0 && (
+        {!loading && !error && cards.length > 0 && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {cards.map((cat, i) => (
               <motion.button

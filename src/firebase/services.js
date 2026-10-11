@@ -16,6 +16,7 @@ import {
 import { db } from './firebaseConfig';
 
 export const COLLECTIONS = {
+  categories: 'categories',
   treatments: 'treatments',
   deals: 'deals',
   products: 'products',
@@ -191,16 +192,40 @@ export async function seedStarterData(seed) {
   for (const key of ['categories', 'treatments']) {
     const ref = collection(db, COLLECTIONS[key]);
     const existing = await getDocs(query(ref));
+    
+    // Create map of existing items to preserve any custom images uploaded via admin
+    const existingMap = new Map();
     for (const d of existing.docs) {
-      await deleteDoc(d.ref);
+      existingMap.set(d.id, d.data());
     }
+
+    // Instead of blind deleteDoc wipe, upsert seed data while preserving existing uploaded images
     for (const item of seed[key]) {
       const id =
         key === 'categories'
           ? slugId('cat', item.slug)
           : slugId(item.categorySlug, item.name);
-      const { slug, ...rest } = item;
-      await setDoc(doc(db, COLLECTIONS[key], id), { ...rest, createdAt: serverTimestamp() });
+      
+      const existingData = existingMap.get(id);
+      
+      // Preserve existing image if user uploaded one in admin, otherwise use seed image
+      const imageToKeep = (existingData && existingData.image) ? existingData.image : item.image;
+      
+      // Only strip slug from treatments (redundant there); categories NEED their slug for routing
+      const payload = key === 'categories' 
+        ? { ...item, ...(imageToKeep ? { image: imageToKeep } : {}) } 
+        : (() => { 
+            const { slug, ...rest } = item; 
+            return { ...rest, ...(imageToKeep ? { image: imageToKeep } : {}) }; 
+          })();
+
+      await setDoc(doc(db, COLLECTIONS[key], id), { 
+        ...payload, 
+        updatedAt: serverTimestamp(),
+        createdAt: existingData?.createdAt || serverTimestamp() 
+      }, { merge: true });
+
+      existingMap.delete(id);
       results[key] += 1;
     }
   }

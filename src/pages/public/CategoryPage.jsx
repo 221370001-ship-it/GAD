@@ -11,16 +11,20 @@ import { CLINIC } from '../../utils/helpers';
 export default function CategoryPage() {
   const { slug } = useParams();
   const [booking, setBooking] = useState(null);
-  const { data: categories, loading: catLoading } = useCollection('categories');
-  const { data: treatments, loading: treatLoading } = useCollection('treatments');
+  const { data: categories, loading: catLoading, error: catError } = useCollection('categories');
+  const { data: treatments, loading: treatLoading, error: treatError } = useCollection('treatments');
 
   const category = useMemo(() => categories.find((c) => c.slug === slug), [categories, slug]);
   const catTreatments = useMemo(
-    () => treatments.filter((t) => t.categorySlug === slug),
-    [treatments, slug]
+    () =>
+      treatments
+        .filter((t) => t.categorySlug === slug)
+        .map((t) => ({ ...t, categoryImage: category?.image })),
+    [treatments, slug, category]
   );
 
   const loading = catLoading || treatLoading;
+  const error = catError || treatError;
 
   return (
     <div className="pb-24">
@@ -59,7 +63,15 @@ export default function CategoryPage() {
       <div className="container-lux mt-12">
         {loading && <SkeletonGrid count={6} />}
 
-        {!loading && !category && (
+        {error && (
+          <div className="card-lux bg-rose-50 p-6 sm:p-10 text-center border border-rose-200 mt-8 rounded-3xl">
+            <h3 className="text-xl font-bold text-rose-700 mb-2">Failed to load treatments</h3>
+            <p className="text-rose-600 mb-4">{error.message || 'An unknown error occurred while communicating with the database.'}</p>
+            <p className="text-sm text-rose-500">Please try refreshing the page. If the issue persists, contact support.</p>
+          </div>
+        )}
+
+        {!loading && !error && !category && (
           <EmptyState
             icon={Flower2}
             title="Category not found"
@@ -73,7 +85,7 @@ export default function CategoryPage() {
           />
         )}
 
-        {!loading && category && catTreatments.length === 0 && (
+        {!loading && !error && category && catTreatments.length === 0 && (
           <EmptyState
             icon={Flower2}
             title="Treatments coming soon"
@@ -81,7 +93,7 @@ export default function CategoryPage() {
           />
         )}
 
-        {!loading && catTreatments.length > 0 && (
+        {!loading && !error && catTreatments.length > 0 && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {catTreatments.map((t, i) => (
               <TreatmentCard key={t.id} treatment={t} index={i} onBook={setBooking} />

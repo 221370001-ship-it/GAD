@@ -23,9 +23,9 @@ export function TreatmentCard({ treatment, index = 0, onBook }) {
       className="card-lux group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
     >
       <div className="relative h-48 overflow-hidden">
-        {t.image ? (
+        {(t.image || t.categoryImage) ? (
           <img
-            src={t.image}
+            src={t.image || t.categoryImage}
             alt={t.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
