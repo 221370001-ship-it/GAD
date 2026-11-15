@@ -50,18 +50,19 @@ function StatCard({ icon: Icon, label, value, accent, delay = 0, to }) {
 }
 
 export default function AdminDashboard() {
-  const { data: appointments, isLive: apptLive } = useCollection('appointments');
+  const { data: appointments, isLive: apptLive, error: apptErr } = useCollection('appointments');
   const { data: treatments } = useCollection('treatments');
   const { data: deals } = useCollection('deals');
   const { data: products } = useCollection('products');
   const { data: messages } = useCollection('messages');
-  const { data: invoices, isLive: invLive } = useCollection('invoices');
+  const { data: invoices, isLive: invLive, error: invErr } = useCollection('invoices');
   const { data: orders } = useCollection('orders');
   const { toast } = useToast();
   const [seeding, setSeeding] = useState(false);
 
   // Determine if Firestore is reachable (use the invoices collection as a probe since it's admin-only)
   const firestoreConnected = apptLive || invLive;
+  const detectedError = invErr?.message || apptErr?.message || invErr?.code || apptErr?.code || null;
 
   const pending = appointments.filter((a) => a.status === 'pending').length;
   const unread = messages.filter((m) => !m.read).length;
@@ -127,6 +128,11 @@ export default function AdminDashboard() {
               The admin panel is currently showing <strong>static demo data</strong> — not live Firestore records.
               Bills, appointments and catalogue changes are not syncing. Check your Firebase Firestore Security Rules and internet connection.
             </p>
+            {detectedError && (
+              <p className="mt-2 text-xs font-mono font-semibold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 inline-block">
+                Firebase status: {detectedError}
+              </p>
+            )}
           </div>
         </div>
       )}

@@ -75,7 +75,7 @@ export default function useCollection(collectionName, buildQuery) {
           if (FALLBACK_DATA[collectionName]) {
             setData(FALLBACK_DATA[collectionName]);
             setIsLive(false); // explicitly mark as not live
-            setError(null);
+            setError(err); // keep error available for diagnostics
           } else {
             setIsLive(false);
             setError(err);
