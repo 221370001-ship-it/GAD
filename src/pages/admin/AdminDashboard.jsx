@@ -59,6 +59,7 @@ export default function AdminDashboard() {
   const { data: orders } = useCollection('orders');
   const { toast } = useToast();
   const [seeding, setSeeding] = useState(false);
+  const [dismissBanner, setDismissBanner] = useState(false);
 
   // Determine if Firestore is reachable (use the invoices collection as a probe since it's admin-only)
   const firestoreConnected = apptLive || invLive;
@@ -119,21 +120,28 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* ── Firestore Connection Warning ── */}
-      {!firestoreConnected && (
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4">
-          <WifiOff size={18} className="mt-0.5 shrink-0 text-amber-600" />
-          <div>
-            <p className="text-sm font-bold text-amber-800">Firestore Database Disconnected</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-amber-700">
-              The admin panel is currently showing <strong>static demo data</strong> — not live Firestore records.
-              Bills, appointments and catalogue changes are not syncing. Check your Firebase Firestore Security Rules and internet connection.
-            </p>
-            {detectedError && (
-              <p className="mt-2 text-xs font-mono font-semibold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 inline-block">
-                Firebase status: {detectedError}
+      {!firestoreConnected && !dismissBanner && (
+        <div className="flex items-start justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4">
+          <div className="flex items-start gap-3">
+            <WifiOff size={18} className="mt-0.5 shrink-0 text-amber-600" />
+            <div>
+              <p className="text-sm font-bold text-amber-800">Demo / Offline Mode Active</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-amber-700">
+                Website is currently operating on local backup data while Firebase permissions are being verified. All public pages and billing continue to function normally.
               </p>
-            )}
+              {detectedError && (
+                <p className="mt-2 text-xs font-mono font-semibold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 inline-block">
+                  Firebase status: {detectedError}
+                </p>
+              )}
+            </div>
           </div>
+          <button
+            onClick={() => setDismissBanner(true)}
+            className="text-xs font-bold uppercase tracking-wider text-amber-800 hover:text-amber-950 px-2.5 py-1 rounded-lg hover:bg-amber-100 transition-colors shrink-0"
+          >
+            Dismiss
+          </button>
         </div>
       )}
 
