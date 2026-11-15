@@ -59,7 +59,7 @@ const ADVANCED_EQUIPMENT = [
     text: 'Multi-step clinical hydra-dermabrasion platform combining painless vortex suction, chemical exfoliation, and concentrated nutrient serum infusion for immediate glow, deep decongestion, and refined skin clarity.',
   },
   {
-    title: 'HydraFacial Machine',
+    title: 'Simple HydraFacial Machine',
     tag: '10-in-1 Skin Station',
     image: 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794743243/gadaesthetics/equipment/isvkjgkn2vorzsk5qhrt.jpg',
     fallback: '/equipment/advanced-hydrafacial-machine.jpg',
