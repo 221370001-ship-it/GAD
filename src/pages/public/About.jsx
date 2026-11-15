@@ -27,6 +27,8 @@ import { CLINIC, isValidPhone } from '../../utils/helpers';
 import { useToast } from '../../context/ToastContext';
 import { GoldSpinner } from '../../components/common/Spinner';
 
+const CLINIC_HERO_IMAGE = 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794741324/gadaesthetics/clinic/qonu2jrtll4xj5lobnem.jpg';
+
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
@@ -331,7 +333,103 @@ function ShareExperience() {
 
 export default function About() {
   return (
-    <div className="pb-24 pt-[120px] sm:pt-[150px]">
+    <div className="pb-24 pt-[110px] sm:pt-[130px]">
+      {/* ============ CLINIC SHOWCASE (HERO) ============ */}
+      <section className="relative overflow-hidden bg-primary-bg pb-12 pt-6 sm:pb-20 sm:pt-10">
+        <div
+          className="pointer-events-none absolute left-1/2 top-10 -translate-x-1/2 h-[500px] w-full max-w-5xl rounded-full opacity-40 blur-3xl"
+          style={{ background: 'radial-gradient(ellipse at center, rgba(197,160,89,0.25), transparent 70%)' }}
+        />
+
+        <div className="container-lux relative">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="text-center"
+          >
+            <span className="chip-gold mx-auto mb-4 inline-flex items-center gap-1.5 shadow-sm">
+              <Sparkles size={13} className="text-accent-gold-deep" />
+              Flagship Clinic &amp; Sanctuary
+            </span>
+            <h1 className="font-heading text-3xl font-bold tracking-tight text-brand-dark sm:text-5xl lg:text-6xl">
+              Where Medical Science Meets{' '}
+              <span className="font-serif italic text-accent-gold-deep">Luxury Aesthetics</span>
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-brand-light sm:text-base">
+              Welcome to GAD Aesthetic Clinic — Gujranwala&apos;s premier destination for ethical skin, hair, and laser care. Designed for comfort, equipped with global clinical precision.
+            </p>
+          </motion.div>
+
+          {/* Luxury Framed Image with Smooth Zoom Effect */}
+          <motion.div
+            initial={{ opacity: 0, y: 35, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="group relative mx-auto mt-8 sm:mt-12 max-w-5xl"
+          >
+            {/* Ambient Back Glow */}
+            <div className="absolute -inset-1.5 rounded-[2.5rem] bg-gradient-to-r from-accent-gold/40 via-accent-gold/20 to-accent-gold/40 opacity-70 blur-xl transition-all duration-700 group-hover:opacity-100" />
+
+            {/* Outer Luxury Frame */}
+            <div className="relative rounded-[2rem] border border-accent-gold/40 bg-gradient-to-b from-[#2A2624]/90 via-[#1E1B1A]/95 to-[#161413] p-2.5 sm:p-4 shadow-2xl backdrop-blur-sm">
+              {/* Inner Image Container with Zoom Effect */}
+              <div className="relative overflow-hidden rounded-[1.4rem] sm:rounded-[1.6rem] bg-brand-dark">
+                <img
+                  src={CLINIC_HERO_IMAGE}
+                  onError={(e) => { e.currentTarget.src = '/clinic-front.jpg'; }}
+                  alt="GAD Aesthetic Clinic - By Dr. Abdullah Asif"
+                  className="h-[460px] w-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-105 sm:h-[620px] lg:h-[720px]"
+                  loading="eager"
+                />
+
+                {/* Subtle vignette & bottom gradient overlay */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+
+                {/* Top Corner Badge: Licensed / Verified */}
+                <div className="absolute left-4 top-4 sm:left-6 sm:top-6 flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-3.5 py-1.5 backdrop-blur-md">
+                  <ShieldCheck size={14} className="text-accent-gold" />
+                  <span className="text-[11px] font-bold tracking-widest uppercase text-white/90">
+                    PMDC Verified • Certified Aesthetic Centre
+                  </span>
+                </div>
+
+                {/* Bottom Overlay Info Banner */}
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8">
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 rounded-2xl border border-white/15 bg-black/55 p-4 sm:p-6 backdrop-blur-md shadow-lg">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-accent-gold">
+                          Welcome to GAD Aesthetics
+                        </p>
+                      </div>
+                      <h3 className="mt-1 font-heading text-xl font-bold text-white sm:text-2xl">
+                        GAD Aesthetic Clinic
+                      </h3>
+                      <p className="mt-0.5 text-xs text-white/70 sm:text-sm">
+                        By Dr. Abdullah Asif · CEO &amp; Founder · MBBS, FCPS
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-white/80">
+                      <span className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/10 px-3 py-1.5 font-medium">
+                        <MapPin size={13} className="text-accent-gold" />
+                        Billa Chowk, Satellite Town, Gujranwala
+                      </span>
+                      <span className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-accent-gold/40 bg-accent-gold/20 px-3 py-1.5 font-bold uppercase tracking-wider text-accent-gold">
+                        Skin · Hair · Laser
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ============ STORY ============ */}
       <section className="relative overflow-hidden bg-secondary-bg py-14 sm:py-20">
         <div
