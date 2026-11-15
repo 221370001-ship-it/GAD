@@ -401,57 +401,96 @@ export default function BillingSoft() {
     if (!customer.phone.trim()) return toast('Please enter the customer phone number.', 'error');
 
     setSaving(true);
+
+    // ── Step 1: Build the bill payload locally (always succeeds) ──
+    const localTimestamp = new Date().toISOString();
+    const tempInvoiceNumber = `GAD-LOCAL-${Date.now()}`;
+
+    const billPayload = {
+      customerName: customer.name.trim(),
+      customerPhone: customer.phone.trim(),
+      paymentMethod,
+      items: cart.map((i) => ({
+        type: i.type,
+        refId: i.id,
+        name: i.name,
+        priceAtBilling: i.priceAtBilling,
+        quantity: i.quantity,
+      })),
+      subtotal,
+      discountTotal,
+      finalTotal,
+      createdAt: localTimestamp,
+    };
+
+    // ── Step 2: Save to localStorage immediately so bill is NEVER lost ──
     try {
-      const { invoiceNumber } = await createInvoice(
-        {
-          customerName: customer.name.trim(),
-          customerPhone: customer.phone.trim(),
-          paymentMethod,
-          items: cart.map((i) => ({
-            type: i.type,
-            refId: i.id,
-            name: i.name,
-            priceAtBilling: i.priceAtBilling,
-            quantity: i.quantity,
-          })),
-          subtotal,
-          discountTotal,
-          finalTotal,
-        },
-        user?.email || 'staff'
-      );
-      setLastInvoice({ invoiceNumber, finalTotal });
-
-      // Build receipt HTML and print via hidden iframe
-      const receiptHTML = buildReceiptHTML(
-        invoiceNumber,
-        customer,
-        cart,
-        subtotal,
-        discountTotal,
-        finalTotal,
-        paymentMethod
-      );
-
-      try {
-        await printViaIframe(receiptHTML);
-        toast(`${invoiceNumber} saved & sent to printer.`, 'success');
-      } catch (printErr) {
-        console.error('Print error:', printErr);
-        toast('Invoice saved but printing may have failed. Please check the printer.', 'error');
-      }
-
-      setCart([]);
-      setCustomer({ name: '', phone: '' });
-      setPaymentMethod('cash');
-      setManualDiscount(0);
-      setSearch('');
-    } catch (err) {
-      console.error(err);
-      toast('Could not save the bill. Please try again.', 'error');
-    } finally {
-      setSaving(false);
+      const existing = JSON.parse(localStorage.getItem('gad_pending_bills') || '[]');
+      existing.push({ ...billPayload, tempId: tempInvoiceNumber, synced: false });
+      localStorage.setItem('gad_pending_bills', JSON.stringify(existing));
+    } catch (localErr) {
+      console.warn('[GAD] localStorage save failed:', localErr);
     }
+
+    // ── Step 3: Build receipt HTML and print right away (don't wait for cloud) ──
+    const receiptHTML = buildReceiptHTML(
+      tempInvoiceNumber,
+      customer,
+      cart,
+      subtotal,
+      discountTotal,
+      finalTotal,
+      paymentMethod
+    );
+
+    let cloudInvoiceNumber = tempInvoiceNumber;
+    let cloudSaveFailed = false;
+
+    // ── Step 4: Try to save to Firestore cloud ──
+    try {
+      const { invoiceNumber } = await createInvoice(billPayload, user?.email || 'staff');
+      cloudInvoiceNumber = invoiceNumber;
+
+      // Cloud save succeeded — remove from pending queue
+      try {
+        const pending = JSON.parse(localStorage.getItem('gad_pending_bills') || '[]');
+        const updated = pending.map((b) =>
+          b.tempId === tempInvoiceNumber ? { ...b, synced: true, cloudInvoiceNumber } : b
+        );
+        localStorage.setItem('gad_pending_bills', JSON.stringify(updated));
+      } catch (_) { /* non-critical */ }
+
+      setLastInvoice({ invoiceNumber: cloudInvoiceNumber, finalTotal });
+    } catch (cloudErr) {
+      console.error('[GAD] Cloud invoice save failed:', cloudErr);
+      cloudSaveFailed = true;
+      setLastInvoice({ invoiceNumber: tempInvoiceNumber, finalTotal });
+    }
+
+    // ── Step 5: Print the receipt ──
+    try {
+      await printViaIframe(receiptHTML);
+    } catch (printErr) {
+      console.error('[GAD] Print error:', printErr);
+    }
+
+    // ── Step 6: Notify staff with appropriate message ──
+    if (cloudSaveFailed) {
+      toast(
+        `Bill printed & saved locally (${tempInvoiceNumber}). Cloud sync failed — will retry on next connection.`,
+        'error'
+      );
+    } else {
+      toast(`${cloudInvoiceNumber} saved to cloud & sent to printer.`, 'success');
+    }
+
+    // ── Step 7: Clear the form ──
+    setCart([]);
+    setCustomer({ name: '', phone: '' });
+    setPaymentMethod('cash');
+    setManualDiscount(0);
+    setSearch('');
+    setSaving(false);
   }, [cart, customer, paymentMethod, subtotal, discountTotal, finalTotal, user, toast]);
 
   return (

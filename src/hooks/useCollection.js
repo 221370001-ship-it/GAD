@@ -15,16 +15,20 @@ const FALLBACK_DATA = {
  * Usage:
  *   useCollection('treatments')                          // all docs
  *   useCollection('treatments', fsQuery(ref, where(...))) // custom query
- * Returns { data, loading, error } — stays in sync with Firestore.
+ * Returns { data, loading, error, isLive } — stays in sync with Firestore.
+ * isLive = true  → data is coming from Firestore (real-time)
+ * isLive = false → data is static seed fallback (Firestore unavailable)
  */
 export default function useCollection(collectionName, buildQuery) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isLive, setIsLive] = useState(true);
 
   useEffect(() => {
     if (!collectionName) return undefined;
     setLoading(true);
+    setIsLive(true);
 
     const baseRef = collection(db, collectionName);
     const ref = typeof buildQuery === 'function' ? buildQuery(baseRef, fsQuery) : baseRef;
@@ -37,7 +41,7 @@ export default function useCollection(collectionName, buildQuery) {
 
         const docs = snap.docs.map((d) => {
           const item = { id: d.id, ...d.data() };
-          // If Firestore document exists but its image is empty/missing, supply the verified image
+          // Only fill missing image from seedData — do NOT override an existing Firestore image
           if (!item.image) {
             const matched = fallbackMap.get(item.slug || item.name);
             if (matched && matched.image) {
@@ -47,35 +51,40 @@ export default function useCollection(collectionName, buildQuery) {
           return item;
         });
 
-        // If collection exists in Firestore but is completely empty (0 docs), use fallback data
+        // If collection exists in Firestore but is completely empty (0 docs), use fallback
         if (docs.length === 0 && fallback.length > 0) {
           setData(fallback);
+          setIsLive(false); // collection empty — showing static data
         } else {
           setData(docs);
+          setIsLive(true); // real Firestore data
         }
         setLoading(false);
         setError(null);
       },
       (err) => {
-        console.warn(`Firestore listener error on "${collectionName}":`, err.message);
-        
-        // Auto-fallback: If Firestore blocks read access, use local static data
+        console.warn(`[GAD] Firestore listener error on "${collectionName}":`, err.code, err.message);
+
+        // Graceful degradation: use static seed data when Firestore is unreachable
         if (
-          err.code === 'permission-denied' || 
-          err.message.includes('Missing or insufficient permissions') ||
+          err.code === 'permission-denied' ||
+          err.message?.includes('Missing or insufficient permissions') ||
           err.code === 'unavailable'
         ) {
-          console.info(`[GAD] Falling back to local static data for "${collectionName}".`);
+          console.info(`[GAD] Falling back to local static data for "${collectionName}". Reason: ${err.code}`);
           if (FALLBACK_DATA[collectionName]) {
             setData(FALLBACK_DATA[collectionName]);
-            setError(null); // Clear error since we recovered
+            setIsLive(false); // explicitly mark as not live
+            setError(null);
           } else {
+            setIsLive(false);
             setError(err);
           }
         } else {
+          setIsLive(false);
           setError(err);
         }
-        
+
         setLoading(false);
       }
     );
@@ -83,5 +92,5 @@ export default function useCollection(collectionName, buildQuery) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionName]);
 
-  return { data, loading, error };
+  return { data, loading, error, isLive };
 }

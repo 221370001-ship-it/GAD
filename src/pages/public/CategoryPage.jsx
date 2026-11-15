@@ -19,7 +19,8 @@ export default function CategoryPage() {
     () =>
       treatments
         .filter((t) => t.categorySlug === slug)
-        .map((t) => ({ ...t, categoryImage: category?.image })),
+        // Only attach categoryImage as a last-resort fallback; each treatment's own image takes priority
+        .map((t) => ({ ...t, categoryImage: t.image ? undefined : category?.image })),
     [treatments, slug, category]
   );
 

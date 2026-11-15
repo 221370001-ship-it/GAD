@@ -86,7 +86,7 @@ export default function AdminMessages() {
             <div className="mt-4 flex flex-wrap gap-2">
               {m.phone && (
                 <a
-                  href={`https://wa.me/${m.phone.replace(/[^0-9]/g, '')}`}
+                  href={`https://wa.me/${String(m.phone || '').replace(/[^0-9]/g, '').replace(/^0/, '92')}`}
                   target="_blank"
                   rel="noreferrer"
                   onClick={(e) => e.stopPropagation()}

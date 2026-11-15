@@ -13,6 +13,7 @@ import {
   Package,
   BellRing,
   CheckCircle2,
+  WifiOff,
 } from 'lucide-react';
 import useCollection from '../../hooks/useCollection';
 import { seedStarterData, updateDocument } from '../../firebase/services';
@@ -49,15 +50,18 @@ function StatCard({ icon: Icon, label, value, accent, delay = 0, to }) {
 }
 
 export default function AdminDashboard() {
-  const { data: appointments } = useCollection('appointments');
+  const { data: appointments, isLive: apptLive } = useCollection('appointments');
   const { data: treatments } = useCollection('treatments');
   const { data: deals } = useCollection('deals');
   const { data: products } = useCollection('products');
   const { data: messages } = useCollection('messages');
-  const { data: invoices } = useCollection('invoices');
+  const { data: invoices, isLive: invLive } = useCollection('invoices');
   const { data: orders } = useCollection('orders');
   const { toast } = useToast();
   const [seeding, setSeeding] = useState(false);
+
+  // Determine if Firestore is reachable (use the invoices collection as a probe since it's admin-only)
+  const firestoreConnected = apptLive || invLive;
 
   const pending = appointments.filter((a) => a.status === 'pending').length;
   const unread = messages.filter((m) => !m.read).length;
@@ -113,6 +117,20 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
+      {/* ── Firestore Connection Warning ── */}
+      {!firestoreConnected && (
+        <div className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4">
+          <WifiOff size={18} className="mt-0.5 shrink-0 text-amber-600" />
+          <div>
+            <p className="text-sm font-bold text-amber-800">Firestore Database Disconnected</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-amber-700">
+              The admin panel is currently showing <strong>static demo data</strong> — not live Firestore records.
+              Bills, appointments and catalogue changes are not syncing. Check your Firebase Firestore Security Rules and internet connection.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

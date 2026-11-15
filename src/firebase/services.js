@@ -108,12 +108,19 @@ export async function createReview(reviewData) {
 export async function generateInvoiceNumber() {
   const counterRef = doc(db, COLLECTIONS.counters, 'invoices');
   const year = new Date().getFullYear();
-  return runTransaction(db, async (tx) => {
-    const snap = await tx.get(counterRef);
-    const next = ((snap.exists() && snap.data().count) || 0) + 1;
-    tx.set(counterRef, { count: next }, { merge: true });
-    return `INV-${year}-${String(next).padStart(4, '0')}`;
-  });
+  try {
+    return await runTransaction(db, async (tx) => {
+      const snap = await tx.get(counterRef);
+      const next = ((snap.exists() && snap.data().count) || 0) + 1;
+      tx.set(counterRef, { count: next }, { merge: true });
+      return `INV-${year}-${String(next).padStart(4, '0')}`;
+    });
+  } catch (err) {
+    // If Firestore transaction fails, generate a timestamp-based fallback number
+    console.warn('[GAD] Counter transaction failed, using timestamp fallback:', err.message);
+    const ts = Date.now().toString().slice(-6);
+    return `INV-${year}-T${ts}`;
+  }
 }
 
 export async function createInvoice(invoiceData, billedBy) {
