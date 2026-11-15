@@ -544,56 +544,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ MANAGEMENT ============ */}
-      <section className="bg-secondary-bg py-16 sm:py-24">
-        <div className="container-lux grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
-          <motion.div {...fadeUp}>
-            <div className="relative mx-auto max-w-md">
-              <div className="relative h-[420px] overflow-hidden rounded-4xl bg-gradient-to-br from-[#EFE6D8] via-[#F3E9D2] to-[#E7D9BF] shadow-lift">
-                <span className="absolute inset-0 flex items-center justify-center font-heading text-9xl font-bold text-brand-dark/10">
-                  DA
-                </span>
-                <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 bg-gradient-to-t from-brand-deep/50 to-transparent py-6">
-                  <span className="rounded-full bg-white/90 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-brand-dark">
-                    CEO & Founder
-                  </span>
-                </div>
-              </div>
-              <div className="absolute -right-4 -top-4 -z-10 h-full w-full rounded-4xl border border-accent-gold/30" />
-            </div>
-          </motion.div>
-          <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }}>
-            <span className="section-eyebrow">Our Management</span>
-            <h2 className="font-heading text-3xl font-semibold text-brand-dark sm:text-4xl">
-              {CLINIC.doctor}
-            </h2>
-            <p className="mt-2 text-xs font-bold uppercase tracking-[0.25em] text-brand-light">
-              {CLINIC.doctorTitle}
-            </p>
-            <div className="mt-5 h-px w-16 bg-accent-gold" />
-            <p className="mt-6 text-[15px] leading-[1.9] text-brand-light">
-              Dr. Abdullah Asif leads GAD Aesthetic Clinic with a rare combination of medical
-              rigour and artistic sensibility. With an MBBS and FCPS qualification, he has devoted
-              his career to aesthetic medicine — mastering advanced injectable, laser and
-              regenerative techniques.
-            </p>
-            <p className="mt-4 text-[15px] leading-[1.9] text-brand-light">
-              His vision for GAD is clear: bring world-class aesthetic treatments to Gujranwala
-              with honest counsel, meticulous safety standards and results that speak quietly but
-              convincingly. Patients value his straightforward advice — he will always tell you
-              what you need, never more than that.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              {['Evidence-Based Care', 'Advanced Technology', 'Ethical Practice'].map((tag) => (
-                <span key={tag} className="chip-gold">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* ============ SHARE YOUR EXPERIENCE ============ */}
       <ShareExperience />
 
