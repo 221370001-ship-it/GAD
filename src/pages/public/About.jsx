@@ -333,9 +333,9 @@ function ShareExperience() {
 
 export default function About() {
   return (
-    <div className="pb-24 pt-[120px] sm:pt-[150px]">
+    <div className="pb-24 pt-[85px] sm:pt-[105px]">
       {/* ============ STORY & CLINIC SHOWCASE ============ */}
-      <section className="relative overflow-hidden bg-secondary-bg py-14 sm:py-20 lg:py-24">
+      <section className="relative overflow-hidden bg-secondary-bg pt-4 pb-12 sm:pt-6 sm:pb-16 lg:pt-8 lg:pb-20">
         <div
           className="pointer-events-none absolute -left-24 top-0 h-96 w-96 rounded-full opacity-60 blur-3xl"
           style={{ background: 'radial-gradient(closest-side, rgba(243,233,210,1), transparent)' }}
@@ -350,23 +350,17 @@ export default function About() {
               transition={{ duration: 0.7, ease: 'easeOut' }}
               className="lg:col-span-7"
             >
-              <div className="flex items-center gap-3">
-                <span className="chip-gold inline-flex items-center gap-1.5">
-                  <BadgeCheck size={13} className="text-accent-gold-deep" />
-                  10+ Years of Excellence
-                </span>
+              <div className="flex flex-col items-center text-center mb-6">
+                <h2 className="font-heading leading-none text-brand-dark">
+                  <span className="block text-6xl font-bold tracking-tight sm:text-7xl lg:text-8xl">
+                    GAD
+                  </span>
+                  <span className="mt-2 block font-serif text-3xl font-medium italic text-accent-gold-deep sm:text-4xl lg:text-5xl">
+                    Story
+                  </span>
+                </h2>
+                <div className="mt-4 h-0.5 w-24 bg-accent-gold" />
               </div>
-
-              <h2 className="mt-4 font-heading leading-none text-brand-dark">
-                <span className="block text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-                  GAD
-                </span>
-                <span className="mt-2 block font-serif text-3xl font-medium italic text-accent-gold-deep sm:text-4xl lg:text-5xl">
-                  Story
-                </span>
-              </h2>
-
-              <div className="my-6 h-0.5 w-24 bg-accent-gold" />
 
               <div className="space-y-4 text-[15px] leading-[1.85] text-brand-light sm:text-base">
                 <p>
