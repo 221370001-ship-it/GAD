@@ -25,10 +25,17 @@ export default function AdminInvoices() {
     }
   }, [data]);
 
-  // Sort invoices newest first
+  // Sort invoices newest first: INV-2026-0123 > INV-2026-0122 > INV-2026-0001
   const sortedInvoices = useMemo(() => {
     if (!data || data.length === 0) return [];
     return [...data].sort((a, b) => {
+      const numA = a.invoiceNumber || '';
+      const numB = b.invoiceNumber || '';
+      if (numA && numB) {
+        const cmp = numB.localeCompare(numA, undefined, { numeric: true });
+        if (cmp !== 0) return cmp;
+      }
+
       const timeA = a.createdAt?.toMillis
         ? a.createdAt.toMillis()
         : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.createdAt || 0).getTime());
@@ -36,8 +43,7 @@ export default function AdminInvoices() {
         ? b.createdAt.toMillis()
         : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.createdAt || 0).getTime());
 
-      if (timeB !== timeA) return timeB - timeA;
-      return (b.invoiceNumber || '').localeCompare(a.invoiceNumber || '', undefined, { numeric: true });
+      return timeB - timeA;
     });
   }, [data]);
 
