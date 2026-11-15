@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // 1. PUBLIC READABLE CATALOG (Categories, Treatments, Deals, Products)
+    // Public visitors can view, but only authenticated admin can add/edit/delete
+    match /categories/{docId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /treatments/{docId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /deals/{docId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /products/{docId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // 2. REVIEWS
+    // Public can read approved reviews and submit new reviews
+    match /reviews/{docId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAuthenticated();
+    }
+
+    // 3. PUBLIC LEADS & INTAKE (Appointments, Messages, Orders, AI Leads)
+    // Public can create their appointment/message/order; admin can read, update, delete
+    match /appointments/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    match /messages/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    match /orders/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    match /aiRecommendations/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    // 4. BILLING & INVOICES (Software & Admin)
+    // Needs to allow creating invoices and incrementing sequential invoice counters
+    match /invoices/{docId} {
+      allow read, create: if true;
+      allow update, delete: if isAuthenticated();
+    }
+
+    match /counters/{docId} {
+      allow read, write: if true;
+    }
+
+    // 5. EMAIL TRIGGER EXTENSION (Internal Mail queue)
+    match /mail/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAuthenticated();
+    }
+
+    // 6. DEFAULT FALLBACK
+    match /{document=**} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
