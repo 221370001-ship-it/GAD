@@ -264,17 +264,17 @@ export default function Home() {
                 <div className="relative overflow-hidden rounded-3xl border border-accent-gold/30 bg-primary-bg shadow-lift">
                   <div className="aspect-[4/3] w-full overflow-hidden bg-secondary-bg">
                     <img
-                      src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794744203/gadaesthetics/ambience/hrtcqatx5dbepacsjvk2.jpg"
-                      alt="GAD Aesthetic Clinic Executive Waiting Lounge"
+                      src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794744204/gadaesthetics/ambience/mrxtwbnls8o7ldst5scm.jpg"
+                      alt="GAD Aesthetic Clinic Executive Waiting Lounge & Reception"
                       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       loading="lazy"
                       onError={(e) => {
-                        e.currentTarget.src = '/ambience/waiting-lounge.jpg';
+                        e.currentTarget.src = '/ambience/reception-desk.jpg';
                       }}
                     />
                   </div>
                   <div className="absolute bottom-4 left-4 rounded-full bg-brand-deep/80 px-4 py-1.5 text-[11px] font-semibold tracking-wider text-accent-gold backdrop-blur-md">
-                    Executive Lounge
+                    Waiting & Reception Lounge
                   </div>
                 </div>
               </motion.div>
