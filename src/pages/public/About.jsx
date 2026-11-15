@@ -52,14 +52,14 @@ const ADVANCED_EQUIPMENT = [
     text: 'Gold-standard Diode, SHR OPT, and Nd:YAG laser workstation equipped with integrated sapphire contact cooling for virtually pain-free, rapid, and permanent hair reduction across all skin tones and body areas.',
   },
   {
-    title: 'HydraFacial Machine',
+    title: 'Advanced HydraFacial Machine',
     tag: 'Vortex Infusion Station',
     image: 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794743242/gadaesthetics/equipment/jdfdreycyvipc054wivu.jpg',
     fallback: '/equipment/hydrafacial-machine.jpg',
     text: 'Multi-step clinical hydra-dermabrasion platform combining painless vortex suction, chemical exfoliation, and concentrated nutrient serum infusion for immediate glow, deep decongestion, and refined skin clarity.',
   },
   {
-    title: 'Advanced HydraFacial Machine',
+    title: 'HydraFacial Machine',
     tag: '10-in-1 Skin Station',
     image: 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794743243/gadaesthetics/equipment/isvkjgkn2vorzsk5qhrt.jpg',
     fallback: '/equipment/advanced-hydrafacial-machine.jpg',
