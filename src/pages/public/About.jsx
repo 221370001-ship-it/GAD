@@ -335,86 +335,94 @@ export default function About() {
   return (
     <div className="pb-24 pt-[120px] sm:pt-[150px]">
       {/* ============ STORY & CLINIC SHOWCASE ============ */}
-      <section className="relative overflow-hidden bg-secondary-bg py-14 sm:py-20">
+      <section className="relative overflow-hidden bg-secondary-bg py-14 sm:py-20 lg:py-24">
         <div
-          className="pointer-events-none absolute -left-24 top-0 h-80 w-80 rounded-full opacity-70 blur-3xl"
+          className="pointer-events-none absolute -left-24 top-0 h-96 w-96 rounded-full opacity-60 blur-3xl"
           style={{ background: 'radial-gradient(closest-side, rgba(243,233,210,1), transparent)' }}
         />
         <div className="container-lux relative">
-          {/* Aesthetic Clinic Image - Full Uncropped with Smooth Zoom */}
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="group relative mx-auto mb-14 max-w-2xl sm:max-w-3xl sm:mb-20"
-          >
-            {/* Ambient Back Glow */}
-            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-accent-gold/30 via-accent-gold/15 to-accent-gold/30 opacity-60 blur-xl transition-all duration-700 group-hover:opacity-100" />
-
-            {/* Luxury Frame */}
-            <div className="relative rounded-2xl sm:rounded-3xl border border-accent-gold/35 bg-gradient-to-b from-[#2A2624] via-[#1E1B1A] to-[#161413] p-2 sm:p-3 shadow-2xl">
-              <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-brand-dark flex items-center justify-center">
-                <img
-                  src={CLINIC_HERO_IMAGE}
-                  onError={(e) => { e.currentTarget.src = '/clinic-front.jpg'; }}
-                  alt="GAD Aesthetic Clinic - By Dr. Abdullah Asif"
-                  className="w-full h-auto max-h-[85vh] object-contain transition-transform duration-700 ease-out group-hover:scale-105"
-                  loading="eager"
-                />
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
+            {/* Left Column: GAD Story & Narrative */}
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              className="lg:col-span-7"
+            >
+              <div className="flex items-center gap-3">
+                <span className="chip-gold inline-flex items-center gap-1.5">
+                  <BadgeCheck size={13} className="text-accent-gold-deep" />
+                  10+ Years of Excellence
+                </span>
               </div>
-            </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 26, scale: 0.97 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="flex flex-col items-center text-center"
-          >
-            <h2 className="font-heading leading-none text-brand-dark">
-              <span className="block text-[4.75rem] font-bold tracking-tight sm:text-[6.5rem] lg:text-[8rem]">
-                GAD
-              </span>
-              <span className="mt-3 block font-medium italic text-accent-gold-deep text-3xl sm:text-4xl lg:text-[3.4rem]">
-                Story
-              </span>
-            </h2>
-            <div className="mt-7 h-px w-28 bg-accent-gold" />
-          </motion.div>
-          <motion.div {...fadeUp} className="mx-auto mt-6 max-w-3xl text-center">
-            <span className="chip-gold mx-auto">
-              <BadgeCheck size={13} />
-              10+ Years of Excellence
-            </span>
-            <div className="mt-8 space-y-5 text-[15px] leading-[1.9] text-brand-light">
-              <p>
-                GAD Aesthetic Clinic began with a simple conviction — that the people of Gujranwala
-                deserve aesthetic care of international standard, without travelling to Lahore or
-                abroad. Founded by <span className="font-bold text-brand-dark">Dr. Abdullah Asif</span>,
-                the clinic has grown from a modest practice into the region's trusted destination for
-                medical-grade skin, hair and laser treatments.
-              </p>
-              <p>
-                Over the years, we have invested relentlessly in advanced technology and continuous
-                training. Every protocol we follow is evidence-based, every device is
-                medical-grade, and every treatment plan is tailored to the individual — because no
-                two skins, and no two stories, are alike.
-              </p>
-              <p>
-                What truly sets GAD apart is our philosophy of honesty. We believe in realistic
-                expectations, transparent pricing and treatments that respect the natural character
-                of your beauty. Our goal is never to change how you look — it is to help you look
-                like the most refreshed, confident version of yourself.
-              </p>
-              <p>
-                Today, patients from Gujranwala and beyond trust us for signature HydraFacials,
-                Hollywood peels, laser hair removal, PRP therapy and complete transformation
-                journeys — all delivered with warmth, discretion and clinical excellence.
-              </p>
-            </div>
-          </motion.div>
+              <h2 className="mt-4 font-heading leading-none text-brand-dark">
+                <span className="block text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+                  GAD
+                </span>
+                <span className="mt-2 block font-serif text-3xl font-medium italic text-accent-gold-deep sm:text-4xl lg:text-5xl">
+                  Story
+                </span>
+              </h2>
+
+              <div className="my-6 h-0.5 w-24 bg-accent-gold" />
+
+              <div className="space-y-4 text-[15px] leading-[1.85] text-brand-light sm:text-base">
+                <p>
+                  GAD Aesthetic Clinic began with a simple conviction — that the people of Gujranwala
+                  deserve aesthetic care of international standard, without travelling to Lahore or
+                  abroad. Founded by <span className="font-bold text-brand-dark">Dr. Abdullah Asif</span>,
+                  the clinic has grown from a modest practice into the region&apos;s trusted destination for
+                  medical-grade skin, hair and laser treatments.
+                </p>
+                <p>
+                  Over the years, we have invested relentlessly in advanced technology and continuous
+                  training. Every protocol we follow is evidence-based, every device is
+                  medical-grade, and every treatment plan is tailored to the individual — because no
+                  two skins, and no two stories, are alike.
+                </p>
+                <p>
+                  What truly sets GAD apart is our philosophy of honesty. We believe in realistic
+                  expectations, transparent pricing and treatments that respect the natural character
+                  of your beauty. Our goal is never to change how you look — it is to help you look
+                  like the most refreshed, confident version of yourself.
+                </p>
+                <p>
+                  Today, patients from Gujranwala and beyond trust us for signature HydraFacials,
+                  Hollywood peels, laser hair removal, PRP therapy and complete transformation
+                  journeys — all delivered with warmth, discretion and clinical excellence.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Right Column: Tailored Portrait Image Frame with Smooth Hover Zoom */}
+            <motion.div
+              initial={{ opacity: 0, x: 24, scale: 0.98 }}
+              whileInView={{ opacity: 1, x: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              className="lg:col-span-5"
+            >
+              <div className="group relative mx-auto max-w-sm sm:max-w-md lg:max-w-none">
+                {/* Subtle Luxury Outer Glow */}
+                <div className="absolute -inset-1 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-accent-gold/40 via-accent-gold/15 to-accent-gold/40 opacity-70 blur-lg transition-all duration-700 group-hover:opacity-100" />
+
+                {/* Snug Frame Matching Exact Image Shape - Zero Letterboxing or Extra Background */}
+                <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-accent-gold/40 bg-white/50 p-1.5 shadow-2xl backdrop-blur-sm sm:p-2">
+                  <div className="overflow-hidden rounded-[14px] sm:rounded-[20px] bg-secondary-bg">
+                    <img
+                      src={CLINIC_HERO_IMAGE}
+                      onError={(e) => { e.currentTarget.src = '/clinic-front.jpg'; }}
+                      alt="GAD Aesthetic Clinic - By Dr. Abdullah Asif"
+                      className="block h-auto w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      loading="eager"
+                    />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
