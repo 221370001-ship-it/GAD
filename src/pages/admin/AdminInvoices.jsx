@@ -1,5 +1,5 @@
-import { ReceiptText, Trash2, Lock, ShieldAlert, X, Banknote, Smartphone, RefreshCw, AlertTriangle, Printer } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { ReceiptText, Trash2, Lock, ShieldAlert, X, Banknote, Smartphone, RefreshCw, AlertTriangle, Printer, Search } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
 import useCollection from '../../hooks/useCollection';
 import { deleteDocument, updateDocument, createInvoice } from '../../firebase/services';
 import { formatDate, formatPrice } from '../../utils/helpers';
@@ -13,6 +13,7 @@ export default function AdminInvoices() {
   const [editForm, setEditForm] = useState({ customerName: '', customerPhone: '' });
   const [pendingBills, setPendingBills] = useState([]);
   const [syncingOffline, setSyncingOffline] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -23,6 +24,34 @@ export default function AdminInvoices() {
       setPendingBills([]);
     }
   }, [data]);
+
+  // Sort invoices newest first
+  const sortedInvoices = useMemo(() => {
+    if (!data || data.length === 0) return [];
+    return [...data].sort((a, b) => {
+      const timeA = a.createdAt?.toMillis
+        ? a.createdAt.toMillis()
+        : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : new Date(a.createdAt || 0).getTime());
+      const timeB = b.createdAt?.toMillis
+        ? b.createdAt.toMillis()
+        : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : new Date(b.createdAt || 0).getTime());
+
+      if (timeB !== timeA) return timeB - timeA;
+      return (b.invoiceNumber || '').localeCompare(a.invoiceNumber || '', undefined, { numeric: true });
+    });
+  }, [data]);
+
+  // Filter invoices by search term
+  const filteredInvoices = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return sortedInvoices;
+    return sortedInvoices.filter((inv) => {
+      const num = (inv.invoiceNumber || '').toLowerCase();
+      const name = (inv.customerName || '').toLowerCase();
+      const phone = (inv.customerPhone || '').toLowerCase();
+      return num.includes(q) || name.includes(q) || phone.includes(q);
+    });
+  }, [sortedInvoices, searchQuery]);
 
   const syncOfflineBills = async () => {
     setSyncingOffline(true);
@@ -167,21 +196,56 @@ export default function AdminInvoices() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <h2 className="font-heading text-xl font-bold text-brand-dark">Invoice Directory</h2>
-        {!isSuperAdmin ? (
-          <button type="button" onClick={handleSuperAdmin} className="relative z-10 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-600 transition-colors hover:bg-rose-100 sm:gap-2 sm:px-4 sm:text-xs">
-            <Lock size={14} /> <span className="hidden sm:inline">Super Admin</span><span className="sm:hidden">Admin</span>
-          </button>
-        ) : (
-          <button type="button" onClick={deactivateSuperAdmin} className="relative z-10 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-rose-600 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-white shadow-soft transition-colors hover:bg-rose-700 sm:gap-2 sm:px-4 sm:text-xs">
-            <ShieldAlert size={14} /> <span className="hidden sm:inline">Super Admin Active</span><span className="sm:hidden">Active</span> <X size={14} className="ml-0.5 opacity-70 sm:ml-1" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h2 className="font-heading text-xl font-bold text-brand-dark">Invoice Directory</h2>
+          <span className="rounded-full bg-accent-gold/15 px-3 py-0.5 text-xs font-bold text-accent-gold-deep border border-accent-gold/30">
+            {data.length} total
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {!isSuperAdmin ? (
+            <button type="button" onClick={handleSuperAdmin} className="relative z-10 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-600 transition-colors hover:bg-rose-100 sm:gap-2 sm:px-4 sm:text-xs">
+              <Lock size={14} /> <span className="hidden sm:inline">Super Admin</span><span className="sm:hidden">Admin</span>
+            </button>
+          ) : (
+            <button type="button" onClick={deactivateSuperAdmin} className="relative z-10 flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-rose-600 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-white shadow-soft transition-colors hover:bg-rose-700 sm:gap-2 sm:px-4 sm:text-xs">
+              <ShieldAlert size={14} /> <span className="hidden sm:inline">Super Admin Active</span><span className="sm:hidden">Active</span> <X size={14} className="ml-0.5 opacity-70 sm:ml-1" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-light/50" size={16} />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search invoices by customer name, phone number, or invoice # (e.g. 0122, Abdullah)..."
+          className="input-lux w-full pl-10 pr-10 py-2.5 text-sm"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-light/60 hover:text-brand-dark"
+          >
+            <X size={16} />
           </button>
         )}
       </div>
 
-      <div className="space-y-4">
-      {data.map((inv) => (
+      {filteredInvoices.length === 0 ? (
+        <div className="card-lux flex flex-col items-center py-12 text-center">
+          <ReceiptText size={32} className="text-brand-light/40" />
+          <p className="mt-3 text-sm text-brand-light">
+            No invoices found matching &ldquo;{searchQuery}&rdquo;.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+        {filteredInvoices.map((inv) => (
         <div key={inv.id} className="card-lux p-6">
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-brand-dark/8 pb-4">
             {editingId === inv.id ? (
@@ -297,6 +361,7 @@ export default function AdminInvoices() {
         </div>
       ))}
       </div>
+      )}
     </div>
   );
 }

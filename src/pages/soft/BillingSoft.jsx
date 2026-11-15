@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   Banknote,
   Smartphone,
+  Printer,
 } from 'lucide-react';
 import useCollection from '../../hooks/useCollection';
 import { createInvoice } from '../../firebase/services';
@@ -269,7 +270,7 @@ export function buildReceiptHTML(invoiceNum, cust, items, sub, disc, final, paym
    ───────────────────────────────────────────────────────────────────────────── */
 
 export function printViaIframe(html) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     // Remove any leftover print iframe from a previous call
     const old = document.getElementById('__receipt_print_frame');
     if (old) old.remove();
@@ -279,52 +280,55 @@ export function printViaIframe(html) {
     iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;visibility:hidden;';
     document.body.appendChild(iframe);
 
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(html);
-    iframeDoc.close();
-
-    // Safety timeout — if print dialog is never shown, clean up after 15s
-    const safetyTimer = setTimeout(() => {
-      cleanup();
-      reject(new Error('Print timeout'));
-    }, 15000);
+    let printed = false;
+    let fallbackTimer = null;
+    let safetyTimer = null;
 
     function cleanup() {
-      clearTimeout(safetyTimer);
-      // Small delay before removing iframe to let print spooler grab the content
+      if (safetyTimer) clearTimeout(safetyTimer);
+      if (fallbackTimer) clearTimeout(fallbackTimer);
       setTimeout(() => {
-        try { iframe.remove(); } catch (_) { /* already removed */ }
+        try { iframe.remove(); } catch (_) { /* ignored */ }
       }, 1000);
     }
 
-    // Wait for the iframe content (including base64 image) to fully render
-    iframe.contentWindow.addEventListener('load', () => {
+    function doPrint() {
+      if (printed) return;
+      printed = true;
+      if (fallbackTimer) clearTimeout(fallbackTimer);
       try {
-        // Listen for afterprint to know when the dialog closes
         iframe.contentWindow.addEventListener('afterprint', () => {
           cleanup();
           resolve();
         }, { once: true });
 
-        // Trigger print
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
       } catch (err) {
+        console.warn('[GAD] Print execution error:', err);
         cleanup();
-        reject(err);
+        resolve();
       }
-    });
+    }
 
-    // Fallback: if 'load' never fires (edge case), try after a delay
-    setTimeout(() => {
-      try {
-        if (iframe.parentNode) {
-          iframe.contentWindow.focus();
-          iframe.contentWindow.print();
-        }
-      } catch (_) { /* already handled */ }
-    }, 2000);
+    // Safety timeout: resolve after 25s so caller never hangs
+    safetyTimer = setTimeout(() => {
+      cleanup();
+      resolve();
+    }, 25000);
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(html);
+    iframeDoc.close();
+
+    // Give browser 200ms to layout the iframe receipt content, then print
+    iframe.onload = () => {
+      setTimeout(doPrint, 200);
+    };
+
+    // Fallback if iframe.onload doesn't fire
+    fallbackTimer = setTimeout(doPrint, 1500);
   });
 }
 
@@ -480,104 +484,105 @@ export default function BillingSoft() {
   const discountTotal = Math.max(0, Math.min(Number(manualDiscount) || 0, subtotal));
   const finalTotal = subtotal - discountTotal;
 
-  const generateBill = useCallback(async () => {
-    if (cart.length === 0) return toast('Add at least one item to the bill.', 'error');
-    if (!customer.name.trim()) return toast('Please enter the customer name.', 'error');
-    if (!customer.phone.trim()) return toast('Please enter the customer phone number.', 'error');
+  const handleSaveBill = useCallback(
+    async (shouldPrint = true) => {
+      if (cart.length === 0) return toast('Add at least one item to the bill.', 'error');
+      if (!customer.name.trim()) return toast('Please enter the customer name.', 'error');
+      if (!customer.phone.trim()) return toast('Please enter the customer phone number.', 'error');
 
-    setSaving(true);
+      setSaving(true);
 
-    // ── Step 1: Build the bill payload locally (always succeeds) ──
-    const localTimestamp = new Date().toISOString();
-    const tempInvoiceNumber = `GAD-LOCAL-${Date.now()}`;
+      const localTimestamp = new Date().toISOString();
+      const tempInvoiceNumber = `GAD-LOCAL-${Date.now()}`;
 
-    const billPayload = {
-      customerName: customer.name.trim(),
-      customerPhone: customer.phone.trim(),
-      paymentMethod,
-      items: cart.map((i) => ({
-        type: i.type,
-        refId: i.id,
-        name: i.name,
-        priceAtBilling: i.priceAtBilling,
-        quantity: i.quantity,
-      })),
-      subtotal,
-      discountTotal,
-      finalTotal,
-      createdAt: localTimestamp,
-    };
+      const billPayload = {
+        customerName: customer.name.trim(),
+        customerPhone: customer.phone.trim(),
+        paymentMethod,
+        items: cart.map((i) => ({
+          type: i.type,
+          refId: i.id,
+          name: i.name,
+          priceAtBilling: i.priceAtBilling,
+          quantity: i.quantity,
+        })),
+        subtotal,
+        discountTotal,
+        finalTotal,
+        createdAt: localTimestamp,
+      };
 
-    // ── Step 2: Save to localStorage immediately so bill is NEVER lost ──
-    try {
-      const existing = JSON.parse(localStorage.getItem('gad_pending_bills') || '[]');
-      existing.push({ ...billPayload, tempId: tempInvoiceNumber, synced: false });
-      localStorage.setItem('gad_pending_bills', JSON.stringify(existing));
-    } catch (localErr) {
-      console.warn('[GAD] localStorage save failed:', localErr);
-    }
+      let assignedInvoiceNumber = tempInvoiceNumber;
+      let cloudSaveFailed = false;
 
-    // ── Step 3: Build receipt HTML and print right away (don't wait for cloud) ──
-    const receiptHTML = buildReceiptHTML(
-      tempInvoiceNumber,
-      customer,
-      cart,
-      subtotal,
-      discountTotal,
-      finalTotal,
-      paymentMethod
-    );
-
-    let cloudInvoiceNumber = tempInvoiceNumber;
-    let cloudSaveFailed = false;
-
-    // ── Step 4: Try to save to Firestore cloud ──
-    try {
-      const { invoiceNumber } = await createInvoice(billPayload, user?.email || 'staff');
-      cloudInvoiceNumber = invoiceNumber;
-
-      // Cloud save succeeded — remove from pending queue
+      // ── Step 1: Save directly to Firestore Cloud Database first ──
       try {
-        const pending = JSON.parse(localStorage.getItem('gad_pending_bills') || '[]');
-        const updated = pending.map((b) =>
-          b.tempId === tempInvoiceNumber ? { ...b, synced: true, cloudInvoiceNumber } : b
+        const { invoiceNumber } = await createInvoice(billPayload, user?.email || 'staff');
+        assignedInvoiceNumber = invoiceNumber;
+        setLastInvoice({ invoiceNumber, finalTotal });
+      } catch (cloudErr) {
+        console.error('[GAD] Cloud invoice save failed, saving offline fallback:', cloudErr);
+        cloudSaveFailed = true;
+        assignedInvoiceNumber = tempInvoiceNumber;
+        setLastInvoice({ invoiceNumber: tempInvoiceNumber, finalTotal });
+
+        // Save to localStorage so it syncs later if offline
+        try {
+          const existing = JSON.parse(localStorage.getItem('gad_pending_bills') || '[]');
+          existing.push({ ...billPayload, tempId: tempInvoiceNumber, synced: false });
+          localStorage.setItem('gad_pending_bills', JSON.stringify(existing));
+        } catch (localErr) {
+          console.warn('[GAD] localStorage save failed:', localErr);
+        }
+      }
+
+      // ── Step 2: Print only if requested (with the official invoice number!) ──
+      if (shouldPrint) {
+        try {
+          const receiptHTML = buildReceiptHTML(
+            assignedInvoiceNumber,
+            customer,
+            cart,
+            subtotal,
+            discountTotal,
+            finalTotal,
+            paymentMethod
+          );
+          await printViaIframe(receiptHTML);
+        } catch (printErr) {
+          console.error('[GAD] Print error:', printErr);
+        }
+      }
+
+      // ── Step 3: Clear form and notify staff ──
+      if (cloudSaveFailed) {
+        toast(
+          shouldPrint
+            ? `Bill printed & saved locally (${assignedInvoiceNumber}). Pending cloud sync.`
+            : `Saved locally (${assignedInvoiceNumber}). Pending cloud sync.`,
+          'error'
         );
-        localStorage.setItem('gad_pending_bills', JSON.stringify(updated));
-      } catch (_) { /* non-critical */ }
+      } else {
+        toast(
+          shouldPrint
+            ? `${assignedInvoiceNumber} saved to Invoices & sent to printer!`
+            : `${assignedInvoiceNumber} saved successfully to Invoices!`,
+          'success'
+        );
+      }
 
-      setLastInvoice({ invoiceNumber: cloudInvoiceNumber, finalTotal });
-    } catch (cloudErr) {
-      console.error('[GAD] Cloud invoice save failed:', cloudErr);
-      cloudSaveFailed = true;
-      setLastInvoice({ invoiceNumber: tempInvoiceNumber, finalTotal });
-    }
+      setCart([]);
+      setCustomer({ name: '', phone: '' });
+      setPaymentMethod('cash');
+      setManualDiscount(0);
+      setSearch('');
+      checkPendingBills();
+      setSaving(false);
+    },
+    [cart, customer, paymentMethod, subtotal, discountTotal, finalTotal, user, toast, checkPendingBills]
+  );
 
-    // ── Step 5: Print the receipt ──
-    try {
-      await printViaIframe(receiptHTML);
-    } catch (printErr) {
-      console.error('[GAD] Print error:', printErr);
-    }
-
-    // ── Step 6: Notify staff with appropriate message ──
-    if (cloudSaveFailed) {
-      toast(
-        `Bill printed & saved locally (${tempInvoiceNumber}). Cloud sync failed — will retry on next connection.`,
-        'error'
-      );
-    } else {
-      toast(`${cloudInvoiceNumber} saved to cloud & sent to printer.`, 'success');
-    }
-
-    // ── Step 7: Clear the form ──
-    setCart([]);
-    setCustomer({ name: '', phone: '' });
-    setPaymentMethod('cash');
-    setManualDiscount(0);
-    setSearch('');
-    checkPendingBills();
-    setSaving(false);
-  }, [cart, customer, paymentMethod, subtotal, discountTotal, finalTotal, user, toast, checkPendingBills]);
+  const generateBill = useCallback(() => handleSaveBill(true), [handleSaveBill]);
 
   return (
     <div className="space-y-6">
@@ -791,10 +796,28 @@ export default function BillingSoft() {
             </div>
           </div>
 
-          <button onClick={generateBill} disabled={saving} className="btn-gold mt-5 w-full">
-            {saving ? <GoldSpinner size={16} className="border-white/30 border-t-white" /> : <ReceiptText size={15} />}
-            {saving ? 'Saving…' : 'Save and Print Bill'}
-          </button>
+          <div className="mt-5 space-y-2">
+            <button
+              onClick={() => handleSaveBill(true)}
+              disabled={saving}
+              className="btn-gold w-full flex items-center justify-center gap-2 py-3 shadow-md"
+            >
+              {saving ? <GoldSpinner size={16} className="border-white/30 border-t-white" /> : <Printer size={16} />}
+              {saving ? 'Saving & Printing…' : 'Save & Print Bill'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSaveBill(false)}
+              disabled={saving}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-brand-dark/15 bg-white text-xs font-bold uppercase tracking-wider text-brand-dark hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50/50 transition-all shadow-sm"
+            >
+              <CheckCircle2 size={15} className="text-emerald-600" />
+              Save Bill Only (No Print / No PDF)
+            </button>
+            <p className="pt-1 text-center text-[10px] text-brand-light/70">
+              🖨️ Thermal Slip Print: In the print dialog, select <strong>SpeedX Thermal Printer</strong> under Destination (instead of &ldquo;Save as PDF&rdquo;).
+            </p>
+          </div>
         </div>
 
         {/* Last invoice confirmation */}
