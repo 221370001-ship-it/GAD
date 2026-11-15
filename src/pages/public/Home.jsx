@@ -139,75 +139,58 @@ export default function Home() {
       </section>
 
       {/* ============ MEET OUR EXPERT ============ */}
-      <section className="bg-secondary-bg py-16 sm:py-24">
+      <section className="bg-secondary-bg py-10 sm:py-14">
         <div className="container-lux">
-          <SectionHeading eyebrow="Our Medical Team" title="Meet Our" highlight="Expert" />
+          <div className="text-center">
+            <h2 className="font-heading text-3xl font-semibold text-brand-dark sm:text-4xl">
+              Meet Our <span className="italic text-accent-gold">Expert</span>
+            </h2>
+          </div>
 
-          <div className="mt-12 grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+          <div className="mt-8 grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+            {/* Left: Pure Doctor Image Frame (Ready for Dr. Abdullah Asif's photo) */}
             <motion.div {...fadeUp}>
-              <div className="relative mx-auto max-w-md">
-                <div className="card-lux overflow-hidden text-center transition-all duration-300 hover:shadow-lift">
-                  <div className="relative h-80 overflow-hidden bg-gradient-to-br from-[#EFE6D8] via-[#F3E9D2] to-[#E7D9BF]">
-                    <Botanical className="left-2 top-2 h-44 w-44" />
-                    <Botanical className="bottom-2 right-2 h-44 w-44" flip />
-                    <span className="absolute inset-0 flex items-center justify-center font-heading text-9xl font-bold text-brand-dark/15">
-                      DA
-                    </span>
-                    <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 bg-gradient-to-t from-brand-deep/50 to-transparent py-4">
-                      <span className="rounded-full bg-white/95 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-brand-dark shadow-sm">
-                        CEO and Co-Founder
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-7">
-                    <h3 className="font-heading text-2xl font-semibold text-brand-dark">
-                      {CLINIC.doctor}
-                    </h3>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-accent-gold">
-                      CEO and Co-Founder
-                    </p>
-                    <p className="mt-1 text-[13px] font-medium text-brand-light">
-                      CEO and Co-Founder of GAD Aesthetic Clinic, Satellite Town, Gujranwala
-                    </p>
-                    <div className="mx-auto mt-4 h-px w-14 bg-accent-gold" />
-                    <p className="mt-3 text-xs font-semibold tracking-wider text-brand-dark">
-                      MBBS, FCPS
-                    </p>
-                  </div>
+              <div className="relative mx-auto max-w-sm lg:max-w-md">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-accent-gold/40 bg-gradient-to-br from-[#EFE6D8] via-[#F3E9D2] to-[#E7D9BF] shadow-lift">
+                  <Botanical className="left-2 top-2 h-44 w-44" />
+                  <Botanical className="bottom-2 right-2 h-44 w-44" flip />
+                  <span className="absolute inset-0 flex items-center justify-center font-heading text-9xl font-bold text-brand-dark/15">
+                    DA
+                  </span>
                 </div>
-                <div className="absolute -right-4 -top-4 -z-10 h-full w-full rounded-4xl border border-accent-gold/30" />
+                <div className="absolute -right-3 -top-3 -z-10 h-full w-full rounded-3xl border border-accent-gold/30" />
               </div>
             </motion.div>
 
+            {/* Right: Doctor Information & Leadership Narrative */}
             <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }}>
               <span className="section-eyebrow">Clinical Leadership</span>
-              <h3 className="font-heading text-3xl font-semibold text-brand-dark sm:text-4xl">
+              <h3 className="font-heading text-3xl font-semibold text-brand-dark sm:text-4xl lg:text-5xl">
                 {CLINIC.doctor}
               </h3>
-              <p className="mt-2 text-xs font-bold uppercase tracking-[0.25em] text-brand-light">
-                {CLINIC.doctorTitle}
+              <p className="mt-2 text-sm font-semibold tracking-wider text-accent-gold sm:text-base">
+                CEO & Co-founder
               </p>
-              <div className="mt-5 h-px w-16 bg-accent-gold" />
-              <p className="mt-6 text-[15px] leading-[1.9] text-brand-light">
+              <div className="mt-4 h-px w-16 bg-accent-gold" />
+              <p className="mt-5 text-[15px] leading-relaxed text-brand-light">
                 Dr. Abdullah Asif leads GAD Aesthetic Clinic with a rare combination of medical
-                rigour and artistic sensibility. With an MBBS and FCPS qualification, he has devoted
-                his career to aesthetic medicine — mastering advanced injectable, laser and
-                regenerative techniques.
+                rigour and artistic sensibility. Devoted to aesthetic medicine, he has mastered
+                advanced injectable, laser, and regenerative techniques.
               </p>
-              <p className="mt-4 text-[15px] leading-[1.9] text-brand-light">
+              <p className="mt-3.5 text-[15px] leading-relaxed text-brand-light">
                 His vision for GAD is clear: bring world-class aesthetic treatments to Gujranwala
-                with honest counsel, meticulous safety standards and results that speak quietly but
+                with honest counsel, meticulous safety standards, and results that speak quietly but
                 convincingly. Patients value his straightforward advice — he will always tell you
                 what you need, never more than that.
               </p>
-              <div className="mt-7 flex flex-wrap gap-3">
+              <div className="mt-6 flex flex-wrap gap-2.5">
                 {['Evidence-Based Care', 'Advanced Technology', 'Ethical Practice'].map((tag) => (
-                  <span key={tag} className="chip-gold">
+                  <span key={tag} className="chip-gold text-xs">
                     {tag}
                   </span>
                 ))}
               </div>
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              <div className="mt-7 flex flex-wrap items-center gap-4">
                 <Link to="/contact" className="btn-gold">
                   Book a Consultation
                   <ArrowRight size={15} />
@@ -222,37 +205,33 @@ export default function Home() {
       </section>
 
       {/* ============ OUR LUXURY AMBIENCE ============ */}
-      <section className="py-16 sm:py-24">
+      <section className="py-10 sm:py-14">
         <div className="container-lux">
           <SectionHeading
             eyebrow="Sanctuary of Luxury"
             title="Our Luxury"
             highlight="Ambience"
-            description="Designed for serene comfort, clinical discretion, and uncompromising medical hygiene — experience aesthetic care in an environment crafted for you."
+            description="Designed for serene comfort, clinical discretion, and uncompromising medical hygiene."
           />
 
-          <div className="mt-16 space-y-20 lg:space-y-24">
-            {/* ROW 1: Waiting Area (Paragraph Left, Image Right) */}
-            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+          <div className="mt-10 space-y-12 sm:space-y-14 lg:space-y-16">
+            {/* ROW 1: Reception Desk (Paragraph Left, Image Right) */}
+            <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
               <motion.div {...fadeUp} className="order-2 lg:order-1">
-                <span className="section-eyebrow">First Impression & Serenity</span>
+                <span className="section-eyebrow">Warm Welcome & Elegance</span>
                 <h3 className="font-heading text-2xl font-semibold text-brand-dark sm:text-3xl">
-                  Executive Waiting Lounge & Reception
+                  Grand Reception Desk
                 </h3>
-                <div className="mt-4 h-px w-14 bg-accent-gold" />
-                <p className="mt-5 text-[15px] leading-[1.9] text-brand-light">
-                  Step into an atmosphere created to ease your mind from the first moment. With warm
-                  ambient lighting, handcrafted geometric lattice ceilings, bespoke cream leather
-                  seating, and natural gold accents, our lounge reflects modern, refined luxury.
+                <div className="mt-3 h-px w-14 bg-accent-gold" />
+                <p className="mt-4 text-[15px] leading-relaxed text-brand-light">
+                  Your journey begins at our grand reception desk, featuring polished marble, bespoke
+                  gold motifs, and ambient backlit geometry. Our dedicated concierge team ensures
+                  prompt, discreet check-in and seamless coordination from the moment you arrive.
                 </p>
-                <p className="mt-4 text-[15px] leading-[1.9] text-brand-light">
-                  Enjoy complete privacy, discreet check-in, and a peaceful environment while our
-                  dedicated concierge coordinates your personalized treatment plan seamlessly.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-2.5">
-                  <span className="chip-gold">Private & Discreet Check-in</span>
-                  <span className="chip-gold">Air-Purified Sanctuary</span>
-                  <span className="chip-gold">Bespoke Comfort Seating</span>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <span className="chip-gold text-xs">Discreet Registration</span>
+                  <span className="chip-gold text-xs">Dedicated Concierge</span>
+                  <span className="chip-gold text-xs">Seamless Check-in</span>
                 </div>
               </motion.div>
 
@@ -262,10 +241,10 @@ export default function Home() {
                 className="group order-1 lg:order-2"
               >
                 <div className="relative overflow-hidden rounded-3xl border border-accent-gold/30 bg-primary-bg shadow-lift">
-                  <div className="aspect-[4/3] w-full overflow-hidden bg-secondary-bg">
+                  <div className="aspect-[16/11] w-full overflow-hidden bg-secondary-bg">
                     <img
                       src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794744204/gadaesthetics/ambience/mrxtwbnls8o7ldst5scm.jpg"
-                      alt="GAD Aesthetic Clinic Executive Waiting Lounge & Reception"
+                      alt="GAD Aesthetic Clinic Grand Reception Desk"
                       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       loading="lazy"
                       onError={(e) => {
@@ -273,18 +252,83 @@ export default function Home() {
                       }}
                     />
                   </div>
-                  <div className="absolute bottom-4 left-4 rounded-full bg-brand-deep/80 px-4 py-1.5 text-[11px] font-semibold tracking-wider text-accent-gold backdrop-blur-md">
-                    Waiting & Reception Lounge
+                  <div className="absolute bottom-3 left-3 rounded-full bg-brand-deep/80 px-3.5 py-1 text-[11px] font-semibold tracking-wider text-accent-gold backdrop-blur-md">
+                    Grand Reception Desk
                   </div>
                 </div>
               </motion.div>
             </div>
 
-            {/* ROW 2: Consultation Room (Image Left, Paragraph Right) */}
-            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+            {/* ROW 2: Executive Waiting Lounge (Image Left, Paragraph Right) */}
+            <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
               <motion.div {...fadeUp} className="group">
                 <div className="relative overflow-hidden rounded-3xl border border-accent-gold/30 bg-primary-bg shadow-lift">
-                  <div className="aspect-[4/3] w-full overflow-hidden bg-secondary-bg">
+                  <div className="aspect-[16/11] w-full overflow-hidden bg-secondary-bg">
+                    <img
+                      src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794744203/gadaesthetics/ambience/hrtcqatx5dbepacsjvk2.jpg"
+                      alt="GAD Aesthetic Clinic Executive Waiting Lounge"
+                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = '/ambience/waiting-lounge.jpg';
+                      }}
+                    />
+                  </div>
+                  <div className="absolute bottom-3 left-3 rounded-full bg-brand-deep/80 px-3.5 py-1 text-[11px] font-semibold tracking-wider text-accent-gold backdrop-blur-md">
+                    Executive Waiting Lounge
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: 0.15 }}
+              >
+                <span className="section-eyebrow">Tranquil Comfort</span>
+                <h3 className="font-heading text-2xl font-semibold text-brand-dark sm:text-3xl">
+                  Executive Waiting Lounge
+                </h3>
+                <div className="mt-3 h-px w-14 bg-accent-gold" />
+                <p className="mt-4 text-[15px] leading-relaxed text-brand-light">
+                  Relax in our air-purified, climate-controlled lounge appointed with plush cream leather
+                  couches and modern lattice ceilings. Designed to provide a serene sanctuary where you
+                  can unwind in complete comfort before your session.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <span className="chip-gold text-xs">Bespoke Leather Seating</span>
+                  <span className="chip-gold text-xs">Air-Purified Sanctuary</span>
+                  <span className="chip-gold text-xs">Serene Atmosphere</span>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* ROW 3: Consultation Room (Paragraph Left, Image Right) */}
+            <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
+              <motion.div {...fadeUp} className="order-2 lg:order-1">
+                <span className="section-eyebrow">Personalized Diagnostics & Care</span>
+                <h3 className="font-heading text-2xl font-semibold text-brand-dark sm:text-3xl">
+                  Private Doctor’s Consultation Suite
+                </h3>
+                <div className="mt-3 h-px w-14 bg-accent-gold" />
+                <p className="mt-4 text-[15px] leading-relaxed text-brand-light">
+                  A confidential space dedicated to thorough, one-on-one medical evaluation.
+                  Equipped with our advanced AI 3D Face Analyzer to assess skin layers and establish
+                  evidence-based, personalized treatment roadmaps.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <span className="chip-gold text-xs">AI 3D Digital Skin Mapping</span>
+                  <span className="chip-gold text-xs">Confidential Dialogue</span>
+                  <span className="chip-gold text-xs">Ethical Guidance</span>
+                </div>
+              </motion.div>
+
+              <motion.div
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: 0.15 }}
+                className="group order-1 lg:order-2"
+              >
+                <div className="relative overflow-hidden rounded-3xl border border-accent-gold/30 bg-primary-bg shadow-lift">
+                  <div className="aspect-[16/11] w-full overflow-hidden bg-secondary-bg">
                     <img
                       src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794744205/gadaesthetics/ambience/upxtdjfsdfopkz4asrhb.jpg"
                       alt="GAD Aesthetic Clinic Doctor Consultation Room"
@@ -295,72 +339,18 @@ export default function Home() {
                       }}
                     />
                   </div>
-                  <div className="absolute bottom-4 left-4 rounded-full bg-brand-deep/80 px-4 py-1.5 text-[11px] font-semibold tracking-wider text-accent-gold backdrop-blur-md">
-                    Consultation Suite
+                  <div className="absolute bottom-3 left-3 rounded-full bg-brand-deep/80 px-3.5 py-1 text-[11px] font-semibold tracking-wider text-accent-gold backdrop-blur-md">
+                    Doctor Consultation Suite
                   </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: 0.15 }}
-              >
-                <span className="section-eyebrow">Personalized Diagnostics & Care</span>
-                <h3 className="font-heading text-2xl font-semibold text-brand-dark sm:text-3xl">
-                  Private Doctor’s Consultation Suite
-                </h3>
-                <div className="mt-4 h-px w-14 bg-accent-gold" />
-                <p className="mt-5 text-[15px] leading-[1.9] text-brand-light">
-                  Where medical science meets individualized aesthetic artistry. In this private
-                  suite, Dr. Abdullah Asif conducts comprehensive, unhurried consultations using our
-                  advanced AI 3D Facial Skin Analyzer to evaluate deep skin layers.
-                </p>
-                <p className="mt-4 text-[15px] leading-[1.9] text-brand-light">
-                  Every recommendation is built on medical honesty and clinical evidence, providing
-                  you with clear, transparent guidance and a personalized roadmap tailored specifically
-                  to your skin goals.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-2.5">
-                  <span className="chip-gold">AI 3D Digital Skin Mapping</span>
-                  <span className="chip-gold">Confidential 1-on-1 Dialogue</span>
-                  <span className="chip-gold">Ethical Medical Guidance</span>
                 </div>
               </motion.div>
             </div>
 
-            {/* ROW 3: Surgery / Procedure Room (Paragraph Left, Image Right) */}
-            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
-              <motion.div {...fadeUp} className="order-2 lg:order-1">
-                <span className="section-eyebrow">Sterile Excellence & Advanced Tech</span>
-                <h3 className="font-heading text-2xl font-semibold text-brand-dark sm:text-3xl">
-                  Clinical Procedure & Surgery Suites
-                </h3>
-                <div className="mt-4 h-px w-14 bg-accent-gold" />
-                <p className="mt-5 text-[15px] leading-[1.9] text-brand-light">
-                  Our clinical suites are engineered to rigorous hospital-grade sterilization
-                  standards while preserving the calm comfort of a luxury sanctuary. Outfitted with
-                  premier platforms including Morpheus8, Diode Laser Hair Removal, and Advanced
-                  HydraFacial stations.
-                </p>
-                <p className="mt-4 text-[15px] leading-[1.9] text-brand-light">
-                  Ergonomic motorized beds, shadowless clinical lighting, and single-use sterile
-                  consumables guarantee that every procedure is conducted with utmost safety,
-                  absolute precision, and maximum comfort.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-2.5">
-                  <span className="chip-gold">Hospital-Grade Sterilization</span>
-                  <span className="chip-gold">Ergonomic Medical Beds</span>
-                  <span className="chip-gold">Zero-Compromise Safety Protocols</span>
-                </div>
-              </motion.div>
-
-              <motion.div
-                {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: 0.15 }}
-                className="group order-1 lg:order-2"
-              >
+            {/* ROW 4: Clinical Procedure & Surgery Suites (Image Left, Paragraph Right) */}
+            <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
+              <motion.div {...fadeUp} className="group">
                 <div className="relative overflow-hidden rounded-3xl border border-accent-gold/30 bg-primary-bg shadow-lift">
-                  <div className="aspect-[4/3] w-full overflow-hidden bg-secondary-bg">
+                  <div className="aspect-[16/11] w-full overflow-hidden bg-secondary-bg">
                     <img
                       src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794744205/gadaesthetics/ambience/kr6m4or849i2hzh1whnl.jpg"
                       alt="GAD Aesthetic Clinic Clinical Procedure and Treatment Suite"
@@ -371,9 +361,30 @@ export default function Home() {
                       }}
                     />
                   </div>
-                  <div className="absolute bottom-4 left-4 rounded-full bg-brand-deep/80 px-4 py-1.5 text-[11px] font-semibold tracking-wider text-accent-gold backdrop-blur-md">
-                    Procedure Suite
+                  <div className="absolute bottom-3 left-3 rounded-full bg-brand-deep/80 px-3.5 py-1 text-[11px] font-semibold tracking-wider text-accent-gold backdrop-blur-md">
+                    Procedure & Surgery Suite
                   </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: 0.15 }}
+              >
+                <span className="section-eyebrow">Sterile Excellence & Advanced Tech</span>
+                <h3 className="font-heading text-2xl font-semibold text-brand-dark sm:text-3xl">
+                  Clinical Procedure & Surgery Suites
+                </h3>
+                <div className="mt-3 h-px w-14 bg-accent-gold" />
+                <p className="mt-4 text-[15px] leading-relaxed text-brand-light">
+                  Engineered to hospital-grade sterilization protocols with ergonomic treatment beds,
+                  shadowless medical lighting, and single-use sterile consumables. Housing our
+                  Morpheus8, Diode Laser, and Advanced HydraFacial workstations for ultimate safety.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <span className="chip-gold text-xs">Hospital-Grade Sterilization</span>
+                  <span className="chip-gold text-xs">Ergonomic Medical Beds</span>
+                  <span className="chip-gold text-xs">Zero-Compromise Safety</span>
                 </div>
               </motion.div>
             </div>
