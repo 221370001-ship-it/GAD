@@ -796,28 +796,17 @@ export default function BillingSoft() {
             </div>
           </div>
 
-          <div className="mt-5 space-y-2">
-            <button
-              onClick={() => handleSaveBill(true)}
-              disabled={saving}
-              className="btn-gold w-full flex items-center justify-center gap-2 py-3 shadow-md"
-            >
-              {saving ? <GoldSpinner size={16} className="border-white/30 border-t-white" /> : <Printer size={16} />}
-              {saving ? 'Saving & Printing…' : 'Save & Print Bill'}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSaveBill(false)}
-              disabled={saving}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-brand-dark/15 bg-white text-xs font-bold uppercase tracking-wider text-brand-dark hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50/50 transition-all shadow-sm"
-            >
-              <CheckCircle2 size={15} className="text-emerald-600" />
-              Save Bill Only (No Print / No PDF)
-            </button>
-            <p className="pt-1 text-center text-[10px] text-brand-light/70">
-              🖨️ Thermal Slip Print: In the print dialog, select <strong>SpeedX Thermal Printer</strong> under Destination (instead of &ldquo;Save as PDF&rdquo;).
-            </p>
-          </div>
+          <button
+            onClick={() => handleSaveBill(true)}
+            disabled={saving}
+            className="btn-gold mt-5 w-full flex items-center justify-center gap-2 py-3 shadow-md"
+          >
+            {saving ? <GoldSpinner size={16} className="border-white/30 border-t-white" /> : <Printer size={16} />}
+            {saving ? 'Generating & Printing…' : 'Save and Print Bill'}
+          </button>
+          <p className="mt-2 text-center text-[10px] text-brand-light/70">
+            🖨️ In print dialog, select <strong>SpeedX Thermal Printer</strong> under Destination (instead of &ldquo;Save as PDF&rdquo;).
+          </p>
         </div>
 
         {/* Last invoice confirmation */}
