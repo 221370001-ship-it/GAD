@@ -1,9 +1,10 @@
-import { ReceiptText, Trash2, Lock, ShieldAlert, X, Banknote, Smartphone, RefreshCw, AlertTriangle } from 'lucide-react';
+import { ReceiptText, Trash2, Lock, ShieldAlert, X, Banknote, Smartphone, RefreshCw, AlertTriangle, Printer } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import useCollection from '../../hooks/useCollection';
 import { deleteDocument, updateDocument, createInvoice } from '../../firebase/services';
 import { formatDate, formatPrice } from '../../utils/helpers';
 import { useToast } from '../../context/ToastContext';
+import { buildReceiptHTML, printViaIframe } from '../soft/BillingSoft';
 
 export default function AdminInvoices() {
   const { data, loading } = useCollection('invoices');
@@ -59,6 +60,25 @@ export default function AdminInvoices() {
       toast('Error syncing offline bills.', 'error');
     } finally {
       setSyncingOffline(false);
+    }
+  };
+
+  const handleReprint = async (inv) => {
+    try {
+      const html = buildReceiptHTML(
+        inv.invoiceNumber,
+        { name: inv.customerName, phone: inv.customerPhone },
+        inv.items || [],
+        inv.subtotal || 0,
+        inv.discountTotal || 0,
+        inv.finalTotal || 0,
+        inv.paymentMethod || 'cash'
+      );
+      await printViaIframe(html);
+      toast(`Receipt for ${inv.invoiceNumber} sent to printer.`, 'success');
+    } catch (err) {
+      console.error(err);
+      toast('Failed to print receipt. Please check printer.', 'error');
     }
   };
 
@@ -198,22 +218,32 @@ export default function AdminInvoices() {
               <p className="text-[11px] text-brand-light/60">
                 {formatDate(inv.createdAt)} · by {inv.billedBy}
               </p>
-              {isSuperAdmin && (
-                <div className="mt-3 flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => startEdit(inv)}
-                    className="flex items-center gap-1.5 rounded border border-blue-200 bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-600 transition-colors hover:bg-blue-100"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(inv.id, inv.invoiceNumber)}
-                    className="flex items-center gap-1.5 rounded border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-rose-600 transition-colors hover:bg-rose-100"
-                  >
-                    <Trash2 size={12} /> Delete
-                  </button>
-                </div>
-              )}
+              <div className="mt-2.5 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleReprint(inv)}
+                  className="flex items-center gap-1.5 rounded-lg border border-brand-dark/15 bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-dark hover:border-accent-gold hover:text-accent-gold-deep transition-all shadow-sm"
+                  title="Reprint SpeedX Thermal Receipt"
+                >
+                  <Printer size={12} className="text-accent-gold-deep" /> Reprint
+                </button>
+                {isSuperAdmin && (
+                  <>
+                    <button
+                      onClick={() => startEdit(inv)}
+                      className="flex items-center gap-1.5 rounded border border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-600 transition-colors hover:bg-blue-100"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(inv.id, inv.invoiceNumber)}
+                      className="flex items-center gap-1.5 rounded border border-rose-200 bg-rose-50 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-rose-600 transition-colors hover:bg-rose-100"
+                    >
+                      <Trash2 size={12} /> Delete
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 

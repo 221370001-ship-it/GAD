@@ -44,7 +44,7 @@ function SearchRow({ icon: Icon, title, subtitle, price, onClick }) {
    Receipt HTML builder — optimised for SpeedX SP-210 (80mm / 72mm printable)
    ───────────────────────────────────────────────────────────────────────────── */
 
-function buildReceiptHTML(invoiceNum, cust, items, sub, disc, final, paymentMethod) {
+export function buildReceiptHTML(invoiceNum, cust, items, sub, disc, final, paymentMethod) {
   const dateStr = new Date().toLocaleDateString('en-PK', {
     day: '2-digit',
     month: 'short',
@@ -268,7 +268,7 @@ function buildReceiptHTML(invoiceNum, cust, items, sub, disc, final, paymentMeth
    • afterprint cleanup ensures exactly one print per call
    ───────────────────────────────────────────────────────────────────────────── */
 
-function printViaIframe(html) {
+export function printViaIframe(html) {
   return new Promise((resolve, reject) => {
     // Remove any leftover print iframe from a previous call
     const old = document.getElementById('__receipt_print_frame');
@@ -330,6 +330,7 @@ function printViaIframe(html) {
 
 export default function BillingSoft() {
   const { data: treatments } = useCollection('treatments');
+  const { data: categories } = useCollection('categories');
   const { data: deals } = useCollection('deals');
   const { data: products } = useCollection('products');
   const { user } = useAuth();
@@ -419,12 +420,28 @@ export default function BillingSoft() {
     return () => clearTimeout(timerRef.current);
   }, [search]);
 
+  const catMap = useMemo(() => new Map(categories.map((c) => [c.slug, c.name])), [categories]);
+
   const results = useMemo(() => {
     if (!debounced) return [];
     const t = treatments
-      .filter((x) => `${x.name} ${x.category}`.toLowerCase().includes(debounced))
-      .slice(0, 6)
-      .map((x) => ({ key: `t-${x.id}`, type: 'treatment', id: x.id, name: x.name, subtitle: x.category || 'Treatment', price: Number(x.discountedPrice ?? x.originalPrice ?? 0), allowQty: true }));
+      .filter((x) => {
+        const catName = catMap.get(x.categorySlug) || x.categorySlug || '';
+        return `${x.name} ${catName}`.toLowerCase().includes(debounced);
+      })
+      .slice(0, 8)
+      .map((x) => {
+        const catName = catMap.get(x.categorySlug) || x.categorySlug || 'Treatment';
+        return {
+          key: `t-${x.id}`,
+          type: 'treatment',
+          id: x.id,
+          name: x.name,
+          subtitle: catName,
+          price: Number(x.discountedPrice ?? x.originalPrice ?? 0),
+          allowQty: true,
+        };
+      });
     const d = deals
       .filter((x) => (x.title || '').toLowerCase().includes(debounced))
       .slice(0, 4)
@@ -434,7 +451,7 @@ export default function BillingSoft() {
       .slice(0, 6)
       .map((x) => ({ key: `p-${x.id}`, type: 'product', id: x.id, name: x.name, subtitle: 'Retail Product', price: Number(x.discountedPrice ?? x.originalPrice ?? 0), allowQty: true }));
     return [...t, ...d, ...p];
-  }, [debounced, treatments, deals, products]);
+  }, [debounced, treatments, catMap, deals, products]);
 
   function addToCart(item) {
     setCart((c) => {
