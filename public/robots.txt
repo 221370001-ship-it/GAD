@@ -1,0 +1,18 @@
+# robots.txt for GAD Aesthetic Clinic (https://gadaesthetics.com)
+User-agent: *
+Allow: /
+Allow: /treatments
+Allow: /treatments/*
+Allow: /deals
+Allow: /products
+Allow: /about
+Allow: /ai-recommender
+
+# Disallow private admin, auth and internal billing software
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /admin-dashboard
+Disallow: /soft
+
+# Sitemap location
+Sitemap: https://www.gadaesthetics.com/sitemap.xml
