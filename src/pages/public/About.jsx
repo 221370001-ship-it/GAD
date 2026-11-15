@@ -29,6 +29,51 @@ import { GoldSpinner } from '../../components/common/Spinner';
 
 const CLINIC_HERO_IMAGE = 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794741324/gadaesthetics/clinic/qonu2jrtll4xj5lobnem.jpg';
 
+const ADVANCED_EQUIPMENT = [
+  {
+    title: 'AI Face Analyzer',
+    tag: 'Digital Diagnostics',
+    image: 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794743239/gadaesthetics/equipment/g02wxeouofeljbsydw06.jpg',
+    fallback: '/equipment/ai-face-analyzer.jpg',
+    text: 'Advanced 3D facial imaging and digital dome scanner with multi-spectral analysis. Maps deep-layer pigmentation, hydration levels, pores, UV sun damage, and skin age to guide precision-tailored treatment plans.',
+  },
+  {
+    title: 'Morpheus8',
+    tag: 'Subdermal Remodeling',
+    image: 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794743240/gadaesthetics/equipment/tr2dgri1trx2croisxtg.jpg',
+    fallback: '/equipment/morpheus8.jpg',
+    text: 'Premier fractional radiofrequency (RF) microneedling workstation. Penetrates deep into subdermal tissue to stimulate natural collagen, tighten lax skin, refine texture, and contour facial contours.',
+  },
+  {
+    title: 'Laser Hair Removal',
+    tag: 'Triple-Wavelength Platform',
+    image: 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794743241/gadaesthetics/equipment/yclmlacosgnrayajsdxl.jpg',
+    fallback: '/equipment/laser-hair-removal.jpg',
+    text: 'Gold-standard Diode, SHR OPT, and Nd:YAG laser workstation equipped with integrated sapphire contact cooling for virtually pain-free, rapid, and permanent hair reduction across all skin tones and body areas.',
+  },
+  {
+    title: 'HydraFacial Machine',
+    tag: 'Vortex Infusion Station',
+    image: 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794743242/gadaesthetics/equipment/jdfdreycyvipc054wivu.jpg',
+    fallback: '/equipment/hydrafacial-machine.jpg',
+    text: 'Multi-step clinical hydra-dermabrasion platform combining painless vortex suction, chemical exfoliation, and concentrated nutrient serum infusion for immediate glow, deep decongestion, and refined skin clarity.',
+  },
+  {
+    title: 'Advanced HydraFacial Machine',
+    tag: '10-in-1 Skin Station',
+    image: 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794743243/gadaesthetics/equipment/isvkjgkn2vorzsk5qhrt.jpg',
+    fallback: '/equipment/advanced-hydrafacial-machine.jpg',
+    text: 'High-performance multi-functional aesthetic station integrating hydro-peeling, ultrasonic skin scrubbing, bipolar RF skin lifting, cold cryo hammer, and pressurized high-purity oxygen spray for intensive rejuvenation.',
+  },
+  {
+    title: 'Hollywood Peel Machine',
+    tag: 'Q-Switched Laser',
+    image: 'https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794743242/gadaesthetics/equipment/wgbk5p0wbaspv7fx7rlf.jpg',
+    fallback: '/equipment/hollywood-peel-machine.jpg',
+    text: 'High-precision Q-switched Nd:YAG laser platform powering our signature Carbon Hollywood Laser Peel, pigmentation correction, melasma toning, and tattoo clearance with maximum clinical safety and zero downtime.',
+  },
+];
+
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
@@ -429,52 +474,45 @@ export default function About() {
             highlight="Equipment"
             description="Every machine at GAD Aesthetic Clinic is advanced, modern and professional-grade — selected for safety, precision and results, and used across all of our treatments."
           />
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                icon: Zap,
-                title: 'Laser Hair Removal',
-                text: 'Advanced diode and IPL platforms for safe, precise and comfortable permanent hair reduction across face and body.',
-              },
-              {
-                icon: Wand2,
-                title: 'Advanced Laser Treatments',
-                text: 'Modern laser systems powering Hollywood peels, pigmentation correction, tattoo removal and full skin resurfacing.',
-              },
-              {
-                icon: Cpu,
-                title: 'Morpheus8',
-                text: 'State-of-the-art radio-frequency micro-needling platform that remodels skin and contour at a deeper, fractional level.',
-              },
-              {
-                icon: ScanFace,
-                title: 'Face Analysis',
-                text: 'Digital face and skin analysis that maps your skin’s condition in detail for precise, data-driven treatment planning.',
-              },
-              {
-                icon: Sparkles,
-                title: 'Skin Treatments',
-                text: 'Medical-grade devices behind our HydraFacials, boosters, peels and regenerative skin therapies.',
-              },
-              {
-                icon: ShieldCheck,
-                title: 'Every Procedure, Professional-Grade',
-                text: 'Whatever the treatment, the machinery behind it at GAD is always advanced, modern and professional-level.',
-              },
-            ].map((eq, i) => (
+          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {ADVANCED_EQUIPMENT.map((eq, i) => (
               <motion.div
                 key={eq.title}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.55, delay: (i % 3) * 0.1, ease: 'easeOut' }}
-                className="card-lux group p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
+                className="card-lux group p-6 sm:p-7 flex flex-col h-full overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl border border-brand-dark/10 hover:border-accent-gold/50 bg-white"
               >
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-gold-soft text-accent-gold-deep transition-transform duration-300 group-hover:scale-105">
-                  <eq.icon size={26} strokeWidth={1.6} />
-                </span>
-                <h3 className="mt-5 font-heading text-xl font-semibold text-brand-dark">{eq.title}</h3>
-                <p className="mt-3 text-[14px] leading-relaxed text-brand-light">{eq.text}</p>
+                {/* Machine Image Frame with Smooth Hover Zoom */}
+                <div className="relative overflow-hidden rounded-2xl bg-secondary-bg mb-5 aspect-[4/3] flex items-center justify-center border border-brand-dark/5 shadow-inner">
+                  <img
+                    src={eq.image}
+                    onError={(e) => { e.currentTarget.src = eq.fallback; }}
+                    alt={eq.title}
+                    className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-3 left-3 rounded-full bg-black/65 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-md border border-white/15">
+                    {eq.tag}
+                  </div>
+                </div>
+
+                {/* Machine Name */}
+                <h3 className="font-heading text-2xl font-bold text-brand-dark group-hover:text-accent-gold-deep transition-colors duration-200">
+                  {eq.title}
+                </h3>
+
+                {/* Machine Description */}
+                <p className="mt-3 text-[14.5px] leading-relaxed text-brand-light flex-1">
+                  {eq.text}
+                </p>
+
+                {/* Bottom luxury accent */}
+                <div className="mt-5 pt-4 border-t border-brand-dark/8 flex items-center justify-between text-xs font-semibold text-accent-gold-deep">
+                  <span>Medical-Grade Clinical Platform</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent-gold" />
+                </div>
               </motion.div>
             ))}
           </div>
