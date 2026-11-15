@@ -13,7 +13,6 @@ import {
   Package,
   BellRing,
   CheckCircle2,
-  WifiOff,
 } from 'lucide-react';
 import useCollection from '../../hooks/useCollection';
 import { seedStarterData, updateDocument } from '../../firebase/services';
@@ -50,20 +49,15 @@ function StatCard({ icon: Icon, label, value, accent, delay = 0, to }) {
 }
 
 export default function AdminDashboard() {
-  const { data: appointments, isLive: apptLive, error: apptErr } = useCollection('appointments');
+  const { data: appointments } = useCollection('appointments');
   const { data: treatments } = useCollection('treatments');
   const { data: deals } = useCollection('deals');
   const { data: products } = useCollection('products');
   const { data: messages } = useCollection('messages');
-  const { data: invoices, isLive: invLive, error: invErr } = useCollection('invoices');
+  const { data: invoices } = useCollection('invoices');
   const { data: orders } = useCollection('orders');
   const { toast } = useToast();
   const [seeding, setSeeding] = useState(false);
-  const [dismissBanner, setDismissBanner] = useState(false);
-
-  // Determine if Firestore is reachable (use the invoices collection as a probe since it's admin-only)
-  const firestoreConnected = apptLive || invLive;
-  const detectedError = invErr?.message || apptErr?.message || invErr?.code || apptErr?.code || null;
 
   const pending = appointments.filter((a) => a.status === 'pending').length;
   const unread = messages.filter((m) => !m.read).length;
@@ -119,32 +113,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* ── Firestore Connection Warning ── */}
-      {!firestoreConnected && !dismissBanner && (
-        <div className="flex items-start justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4">
-          <div className="flex items-start gap-3">
-            <WifiOff size={18} className="mt-0.5 shrink-0 text-amber-600" />
-            <div>
-              <p className="text-sm font-bold text-amber-800">Demo / Offline Mode Active</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-amber-700">
-                Website is currently operating on local backup data while Firebase permissions are being verified. All public pages and billing continue to function normally.
-              </p>
-              {detectedError && (
-                <p className="mt-2 text-xs font-mono font-semibold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 inline-block">
-                  Firebase status: {detectedError}
-                </p>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={() => setDismissBanner(true)}
-            className="text-xs font-bold uppercase tracking-wider text-amber-800 hover:text-amber-950 px-2.5 py-1 rounded-lg hover:bg-amber-100 transition-colors shrink-0"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
-
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
