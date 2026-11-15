@@ -31,6 +31,19 @@ function FieldRenderer({ field, value, onChange }) {
             );
           })}
         </select>
+      ) : field.type === 'image' ? (
+        <div>
+          <input
+            type="text"
+            className="input-lux"
+            placeholder="Paste direct image URL (https://...) or choose file above"
+            value={value ?? ''}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          <p className="mt-1 text-xs text-brand-light/60">
+            Paste an image link directly, or click the box above to upload from your device.
+          </p>
+        </div>
       ) : (
         <input type={field.type || 'text'} placeholder={field.placeholder} {...common} />
       )}
@@ -122,6 +135,8 @@ export default function CrudManager({ collectionName, entityLabel, fields, defau
       if (file) {
         const upload = await uploadToCloudinary(file, { folder: `gadaesthetics/${collectionName}` });
         payload.image = upload.secureUrl;
+      } else if (payload.image) {
+        payload.image = String(payload.image).trim();
       }
 
       // numeric coercion
@@ -277,8 +292,13 @@ export default function CrudManager({ collectionName, entityLabel, fields, defau
                   </label>
                   <div className="flex items-center gap-4">
                     <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-brand-dark/10">
-                      {imagePreview ? (
-                        <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
+                      {(file ? imagePreview : (form.image?.trim() || imagePreview)) ? (
+                        <img
+                          src={file ? imagePreview : (form.image?.trim() || imagePreview)}
+                          alt="Preview"
+                          className="h-full w-full object-cover"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
                       ) : (
                         <PlaceholderImage className="h-full w-full" seed={previewSeed} />
                       )}

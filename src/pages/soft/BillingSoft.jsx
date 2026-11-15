@@ -342,8 +342,76 @@ export default function BillingSoft() {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [manualDiscount, setManualDiscount] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
   const [lastInvoice, setLastInvoice] = useState(null);
   const timerRef = useRef(null);
+
+  const checkPendingBills = useCallback(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('gad_pending_bills') || '[]');
+      const unsynced = stored.filter((b) => !b.synced);
+      setPendingCount(unsynced.length);
+    } catch (_) {
+      setPendingCount(0);
+    }
+  }, []);
+
+  const syncPendingBills = useCallback(async () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('gad_pending_bills') || '[]');
+      const unsynced = stored.filter((b) => !b.synced);
+      if (unsynced.length === 0) return;
+
+      setSyncing(true);
+      let successCount = 0;
+
+      for (const bill of unsynced) {
+        try {
+          const { invoiceNumber } = await createInvoice(
+            {
+              customerName: bill.customerName,
+              customerPhone: bill.customerPhone,
+              paymentMethod: bill.paymentMethod,
+              items: bill.items,
+              subtotal: bill.subtotal,
+              discountTotal: bill.discountTotal,
+              finalTotal: bill.finalTotal,
+            },
+            user?.email || 'staff'
+          );
+          bill.synced = true;
+          bill.cloudInvoiceNumber = invoiceNumber;
+          successCount++;
+        } catch (err) {
+          console.warn('[GAD] Pending bill sync failed for', bill.tempId, err);
+        }
+      }
+
+      localStorage.setItem('gad_pending_bills', JSON.stringify(stored));
+      checkPendingBills();
+
+      if (successCount > 0) {
+        toast(`Synced ${successCount} offline bill(s) to cloud database!`, 'success');
+      } else {
+        toast('Could not sync to cloud right now. Will retry automatically.', 'error');
+      }
+    } catch (err) {
+      console.error('[GAD] Sync error:', err);
+    } finally {
+      setSyncing(false);
+    }
+  }, [user, toast, checkPendingBills]);
+
+  useEffect(() => {
+    checkPendingBills();
+    const handleOnline = () => {
+      checkPendingBills();
+      syncPendingBills();
+    };
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [checkPendingBills, syncPendingBills]);
 
   useEffect(() => {
     clearTimeout(timerRef.current);
@@ -490,11 +558,37 @@ export default function BillingSoft() {
     setPaymentMethod('cash');
     setManualDiscount(0);
     setSearch('');
+    checkPendingBills();
     setSaving(false);
-  }, [cart, customer, paymentMethod, subtotal, discountTotal, finalTotal, user, toast]);
+  }, [cart, customer, paymentMethod, subtotal, discountTotal, finalTotal, user, toast, checkPendingBills]);
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+    <div className="space-y-6">
+      {pendingCount > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-amber-900 font-bold text-sm">
+              {pendingCount}
+            </span>
+            <div>
+              <p className="text-sm font-bold text-amber-900">
+                {pendingCount} Offline {pendingCount === 1 ? 'Bill' : 'Bills'} Saved on Device
+              </p>
+              <p className="text-xs text-amber-700">
+                Printed & stored safely in local memory. Click to upload to cloud Firestore now.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={syncPendingBills}
+            disabled={syncing}
+            className="btn-gold shrink-0 py-2 px-5 text-xs font-bold uppercase tracking-wider"
+          >
+            {syncing ? 'Syncing...' : 'Sync to Cloud Now'}
+          </button>
+        </div>
+      )}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
       {/* LEFT — search & select */}
       <div className="xl:col-span-3">
         <div className="card-lux p-5 sm:p-6">
@@ -707,5 +801,6 @@ export default function BillingSoft() {
         </AnimatePresence>
       </div>
     </div>
+  </div>
   );
 }

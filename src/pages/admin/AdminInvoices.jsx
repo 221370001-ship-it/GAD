@@ -1,7 +1,7 @@
-import { ReceiptText, Trash2, Lock, ShieldAlert, X, Banknote, Smartphone } from 'lucide-react';
-import { useState } from 'react';
+import { ReceiptText, Trash2, Lock, ShieldAlert, X, Banknote, Smartphone, RefreshCw, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import useCollection from '../../hooks/useCollection';
-import { deleteDocument, updateDocument } from '../../firebase/services';
+import { deleteDocument, updateDocument, createInvoice } from '../../firebase/services';
 import { formatDate, formatPrice } from '../../utils/helpers';
 import { useToast } from '../../context/ToastContext';
 
@@ -10,11 +10,62 @@ export default function AdminInvoices() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ customerName: '', customerPhone: '' });
+  const [pendingBills, setPendingBills] = useState([]);
+  const [syncingOffline, setSyncingOffline] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('gad_pending_bills') || '[]');
+      setPendingBills(stored.filter((b) => !b.synced));
+    } catch (_) {
+      setPendingBills([]);
+    }
+  }, [data]);
+
+  const syncOfflineBills = async () => {
+    setSyncingOffline(true);
+    let success = 0;
+    try {
+      const stored = JSON.parse(localStorage.getItem('gad_pending_bills') || '[]');
+      const unsynced = stored.filter((b) => !b.synced);
+      for (const bill of unsynced) {
+        try {
+          const { invoiceNumber } = await createInvoice(
+            {
+              customerName: bill.customerName,
+              customerPhone: bill.customerPhone,
+              paymentMethod: bill.paymentMethod,
+              items: bill.items,
+              subtotal: bill.subtotal,
+              discountTotal: bill.discountTotal,
+              finalTotal: bill.finalTotal,
+            },
+            'admin'
+          );
+          bill.synced = true;
+          bill.cloudInvoiceNumber = invoiceNumber;
+          success++;
+        } catch (e) {
+          console.warn('[GAD] Sync failed for', bill.tempId, e);
+        }
+      }
+      localStorage.setItem('gad_pending_bills', JSON.stringify(stored));
+      setPendingBills(stored.filter((b) => !b.synced));
+      if (success > 0) toast(`Successfully synced ${success} offline bill(s) to cloud!`, 'success');
+      else toast('Sync failed. Please verify your internet connection and Firestore rules.', 'error');
+    } catch (e) {
+      console.error(e);
+      toast('Error syncing offline bills.', 'error');
+    } finally {
+      setSyncingOffline(false);
+    }
+  };
 
   const handleSuperAdmin = () => {
     const pwd = window.prompt('Enter Super Admin Password:');
-    if (pwd === 'superaligad') {
+    const validPwd = import.meta.env.VITE_SUPER_ADMIN_PASSWORD || 'superaligad';
+    if (pwd === validPwd) {
       setIsSuperAdmin(true);
       toast('Super Admin access granted.', 'success');
     } else if (pwd !== null) {
@@ -70,6 +121,32 @@ export default function AdminInvoices() {
 
   return (
     <div className="space-y-6">
+      {pendingBills.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-amber-900 font-bold text-sm">
+              <AlertTriangle size={18} />
+            </span>
+            <div>
+              <p className="text-sm font-bold text-amber-900">
+                {pendingBills.length} Offline {pendingBills.length === 1 ? 'Bill' : 'Bills'} Pending Cloud Sync
+              </p>
+              <p className="text-xs text-amber-700">
+                Created locally on this machine. Click to upload them to Firestore cloud database now.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={syncOfflineBills}
+            disabled={syncingOffline}
+            className="btn-gold shrink-0 py-2 px-5 text-xs font-bold uppercase tracking-wider flex items-center gap-2"
+          >
+            <RefreshCw size={13} className={syncingOffline ? 'animate-spin' : ''} />
+            {syncingOffline ? 'Syncing...' : 'Sync to Cloud Now'}
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <h2 className="font-heading text-xl font-bold text-brand-dark">Invoice Directory</h2>
         {!isSuperAdmin ? (

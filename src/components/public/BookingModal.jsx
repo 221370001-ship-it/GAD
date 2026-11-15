@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Modal from '../common/Modal';
 import { SuccessModal } from './BookingForms';
@@ -51,6 +51,23 @@ export default function BookingModal({ open, onClose, booking = null, prefill = 
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (open) {
+      setForm({
+        fullName: prefill?.fullName || '',
+        phone: prefill?.phone || '',
+        gender: prefill?.gender || 'Female',
+        age: prefill?.age || '',
+        skinType: 'Not sure',
+        primaryConcern: '',
+        date: '',
+        time: '',
+      });
+      setErrors({});
+      setSuccess(false);
+    }
+  }, [open, booking, prefill?.fullName, prefill?.phone, prefill?.gender, prefill?.age]);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
