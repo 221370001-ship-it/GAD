@@ -129,51 +129,83 @@ export default function Home() {
         <div className="container-lux">
           <motion.div
             {...fadeUp}
-            className="relative overflow-hidden rounded-4xl bg-gradient-to-br from-brand-dark via-[#5A463A] to-brand-deep px-6 py-14 text-center shadow-lift sm:px-12 sm:py-20"
+            className="relative overflow-hidden rounded-4xl bg-gradient-to-br from-brand-dark via-[#5A463A] to-brand-deep p-8 shadow-lift sm:p-12 lg:p-16"
           >
-            {/* ── Background: blurred AI face analysis image ── */}
+            {/* Ambient luxury gold backdrop glows */}
             <div
-              className="pointer-events-none absolute inset-0"
-              style={{
-                backgroundImage: 'url(https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794945198/gadaesthetics/ai/rsshmh6suhqfigf8yxru.jpg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center 35%',
-                filter: 'blur(5px)',
-                transform: 'scale(1.08)',
-                opacity: 0.32,
-              }}
-            />
-            {/* ── Soft dark brown gradient overlay ensuring luxury brown tone & clear typography ── */}
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background: 'linear-gradient(135deg, rgba(74,59,50,0.72) 0%, rgba(90,70,58,0.55) 50%, rgba(51,39,32,0.80) 100%)',
-              }}
-            />
-            <div
-              className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-30 blur-3xl"
+              className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-25 blur-3xl"
               style={{ background: 'radial-gradient(closest-side, #C5A059, transparent)' }}
             />
             <div
               className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full opacity-20 blur-3xl"
               style={{ background: 'radial-gradient(closest-side, #C5A059, transparent)' }}
             />
-            <span className="relative z-10 inline-flex items-center gap-2 rounded-full border border-accent-gold/40 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-accent-gold">
-              <Sparkles size={13} />
-              AI-Powered Analysis
-            </span>
-            <h2 className="relative z-10 mx-auto mt-6 max-w-2xl font-heading text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
-              Discover Your Perfect <span className="italic text-accent-gold">Treatment</span>
-            </h2>
-            <p className="relative z-10 mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-[15px]">
-              Not sure which treatment is right for you? Our AI-powered recommender analyzes your
-              skin concerns and goals to suggest personalized treatments. Get expert recommendations
-              in minutes!
-            </p>
-            <Link to="/ai-recommender" className="btn-gold relative z-10 mt-9 animate-pulseGlow">
-              <Sparkles size={16} />
-              Try AI Recommender
-            </Link>
+
+            <div className="relative z-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
+              {/* Left Column: AI Face Analysis Visual (Sharp Prominent Face + Gradual Edge Blur) */}
+              <div className="flex justify-center lg:col-span-5">
+                <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[370px]">
+                  {/* Subtle warm gold ambient aura */}
+                  <div
+                    className="pointer-events-none absolute -inset-3 rounded-full opacity-35 blur-2xl"
+                    style={{ background: 'radial-gradient(circle, #C5A059 0%, transparent 70%)' }}
+                  />
+
+                  {/* Outer edge gradual blur layer */}
+                  <div
+                    className="pointer-events-none absolute inset-0 overflow-hidden"
+                    style={{
+                      maskImage: 'radial-gradient(circle at 48% 48%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0) 85%)',
+                      WebkitMaskImage: 'radial-gradient(circle at 48% 48%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0) 85%)',
+                    }}
+                  >
+                    <img
+                      src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794945198/gadaesthetics/ai/rsshmh6suhqfigf8yxru.jpg"
+                      alt=""
+                      aria-hidden="true"
+                      className="h-full w-full object-cover object-center filter blur-md transform scale-105"
+                    />
+                  </div>
+
+                  {/* Sharp, Prominent Model Face with Glowing Scanning Lines */}
+                  <div
+                    className="relative aspect-square w-full overflow-hidden"
+                    style={{
+                      maskImage: 'radial-gradient(circle at 48% 48%, rgba(0,0,0,1) 48%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0) 85%)',
+                      WebkitMaskImage: 'radial-gradient(circle at 48% 48%, rgba(0,0,0,1) 48%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0) 85%)',
+                    }}
+                  >
+                    <img
+                      src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794945198/gadaesthetics/ai/rsshmh6suhqfigf8yxru.jpg"
+                      alt="AI Facial Analysis - GAD Aesthetic Clinic"
+                      className="h-full w-full object-cover object-center"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: AI Analysis Narrative & Action */}
+              <div className="text-center lg:col-span-7 lg:text-left">
+                <span className="inline-flex items-center gap-2 rounded-full border border-accent-gold/40 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-accent-gold">
+                  <Sparkles size={13} />
+                  AI-Powered Analysis
+                </span>
+                <h2 className="mt-5 font-heading text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
+                  Discover Your Perfect <span className="italic text-accent-gold">Treatment</span>
+                </h2>
+                <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/75 sm:text-[15px] lg:mx-0">
+                  Not sure which treatment is right for you? Our AI-powered recommender analyzes your
+                  skin concerns and goals to suggest personalized treatments. Get expert recommendations
+                  in minutes!
+                </p>
+                <div className="mt-8 flex justify-center lg:justify-start">
+                  <Link to="/ai-recommender" className="btn-gold animate-pulseGlow">
+                    <Sparkles size={16} />
+                    Try AI Recommender
+                  </Link>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -456,24 +488,12 @@ export default function Home() {
 
       {/* ============ 4-STEP JOURNEY ============ */}
       <section className="relative overflow-hidden bg-secondary-bg py-16 sm:py-24">
-        {/* ── Background: blurred transformation visual ── */}
+        {/* Soft background ambient glow */}
         <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage: 'url(https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794945808/gadaesthetics/transform/cw9zixoe5gnegh6fiig1.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center 28%',
-            filter: 'blur(6px)',
-            transform: 'scale(1.08)',
-          }}
+          className="pointer-events-none absolute -left-20 top-1/3 h-96 w-96 rounded-full opacity-20 blur-3xl"
+          style={{ background: 'radial-gradient(circle, #C5A059 0%, transparent 70%)' }}
         />
-        {/* ── Soft luxury warm-cream overlay so steps and text stay perfectly readable ── */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,252,248,0.85) 0%, rgba(246,241,232,0.80) 50%, rgba(255,252,248,0.87) 100%)',
-          }}
-        />
+
         <div className="container-lux relative z-10">
           <SectionHeading
             eyebrow="Your Journey With Us"
@@ -481,29 +501,80 @@ export default function Home() {
             highlight="Transform"
             description="From your first consultation to achieving your dream results, we guide you every step of the way with personalised care."
           />
-          <div className="mt-14 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((step, i) => (
-              <motion.div
-                key={step.n}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.55, delay: i * 0.1, ease: 'easeOut' }}
-                className="relative flex flex-col items-center text-center"
-              >
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-accent-gold to-accent-gold-deep font-heading text-sm font-bold text-white shadow-gold">
-                  {step.n}
-                </span>
-                {i < STEPS.length - 1 && (
-                  <div className="absolute left-[calc(50%+34px)] top-6 hidden w-[calc(100%-68px)] border-t border-dashed border-accent-gold/40 lg:block" />
-                )}
-                <span className="mt-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-accent-gold-deep shadow-card">
-                  <step.icon size={24} strokeWidth={1.6} />
-                </span>
-                <h3 className="mt-4 font-heading text-lg font-semibold text-brand-dark">{step.title}</h3>
-                <p className="mt-2 max-w-[260px] text-[13px] leading-relaxed text-brand-light">{step.text}</p>
-              </motion.div>
-            ))}
+
+          <div className="mt-14 grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
+            {/* Left Column: Transformation Model Visual (Sharp Center + Gradual Edge Blur) */}
+            <div className="flex justify-center lg:col-span-5">
+              <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[370px]">
+                {/* Subtle warm gold ambient aura */}
+                <div
+                  className="pointer-events-none absolute -inset-3 rounded-full opacity-30 blur-2xl"
+                  style={{ background: 'radial-gradient(circle, #C5A059 0%, transparent 70%)' }}
+                />
+
+                {/* Outer edge gradual blur layer */}
+                <div
+                  className="pointer-events-none absolute inset-0 overflow-hidden"
+                  style={{
+                    maskImage: 'radial-gradient(circle at 48% 48%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.65) 60%, rgba(0,0,0,0) 85%)',
+                    WebkitMaskImage: 'radial-gradient(circle at 48% 48%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.65) 60%, rgba(0,0,0,0) 85%)',
+                  }}
+                >
+                  <img
+                    src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794945808/gadaesthetics/transform/cw9zixoe5gnegh6fiig1.jpg"
+                    alt=""
+                    aria-hidden="true"
+                    className="h-full w-full object-cover object-center filter blur-md transform scale-105"
+                  />
+                </div>
+
+                {/* Sharp, Prominent Model Face with Glowing Light Beams */}
+                <div
+                  className="relative aspect-square w-full overflow-hidden"
+                  style={{
+                    maskImage: 'radial-gradient(circle at 48% 48%, rgba(0,0,0,1) 48%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0) 85%)',
+                    WebkitMaskImage: 'radial-gradient(circle at 48% 48%, rgba(0,0,0,1) 48%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0) 85%)',
+                  }}
+                >
+                  <img
+                    src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794945808/gadaesthetics/transform/cw9zixoe5gnegh6fiig1.jpg"
+                    alt="Skin Transformation Journey - GAD Aesthetic Clinic"
+                    className="h-full w-full object-cover object-center"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: 4 Steps in a 2x2 Luxury Grid */}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-7">
+              {STEPS.map((step, i) => (
+                <motion.div
+                  key={step.n}
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.5, delay: i * 0.08, ease: 'easeOut' }}
+                  className="card-lux group flex flex-col justify-between p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-gold-soft text-accent-gold-deep shadow-sm transition-transform duration-300 group-hover:scale-110">
+                        <step.icon size={22} strokeWidth={1.7} />
+                      </span>
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-accent-gold to-accent-gold-deep font-heading text-xs font-bold text-white shadow-gold">
+                        {step.n}
+                      </span>
+                    </div>
+                    <h3 className="mt-4 font-heading text-base font-semibold text-brand-dark sm:text-lg">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-xs leading-relaxed text-brand-light sm:text-[13px]">
+                      {step.text}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
