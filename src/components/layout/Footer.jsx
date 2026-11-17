@@ -75,7 +75,7 @@ export default function Footer() {
               <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-all duration-300 group-hover:border-accent-gold group-hover:text-accent-gold">
                 <Phone size={15} />
               </span>
-              {CLINIC.phoneRaw}
+              {CLINIC.phone}
             </a>
           </div>
         </div>

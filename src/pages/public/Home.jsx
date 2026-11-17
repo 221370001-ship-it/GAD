@@ -89,20 +89,25 @@ export default function Home() {
             description="Schedule your in-clinic visit below — or book a video consultation from anywhere in the world. Our team confirms every request personally."
           />
           <motion.div {...fadeUp} className="card-lux relative mx-auto mt-12 max-w-6xl overflow-hidden p-6 sm:p-10">
-            {/* Background image with overlay */}
-            <img
-              src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794943475/gadaesthetics/consultation/z2lppybcmx9gb0izxwzw.jpg"
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
-              style={{ opacity: 0.13 }}
-            />
-            {/* Soft gradient overlay so text stays readable */}
+            {/* ── Background: blurred aesthetic image ── */}
             <div
               className="pointer-events-none absolute inset-0"
-              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(255,248,236,0.80) 100%)' }}
+              style={{
+                backgroundImage: 'url(https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794943475/gadaesthetics/consultation/z2lppybcmx9gb0izxwzw.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center top',
+                filter: 'blur(6px)',
+                transform: 'scale(1.08)',
+              }}
             />
-            {/* Content */}
+            {/* ── Soft warm-white overlay so form stays perfectly readable ── */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,252,248,0.82) 0%, rgba(255,245,230,0.78) 50%, rgba(255,252,248,0.82) 100%)',
+              }}
+            />
+            {/* ── Form content ── */}
             <div className="relative z-10">
               <div className="mb-8 flex items-center gap-4">
                 <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-gold-soft text-accent-gold-deep">
