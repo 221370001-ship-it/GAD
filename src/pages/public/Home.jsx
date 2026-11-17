@@ -131,6 +131,25 @@ export default function Home() {
             {...fadeUp}
             className="relative overflow-hidden rounded-4xl bg-gradient-to-br from-brand-dark via-[#5A463A] to-brand-deep px-6 py-14 text-center shadow-lift sm:px-12 sm:py-20"
           >
+            {/* ── Background: blurred AI face analysis image ── */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage: 'url(https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794945198/gadaesthetics/ai/rsshmh6suhqfigf8yxru.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center 35%',
+                filter: 'blur(5px)',
+                transform: 'scale(1.08)',
+                opacity: 0.32,
+              }}
+            />
+            {/* ── Soft dark brown gradient overlay ensuring luxury brown tone & clear typography ── */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background: 'linear-gradient(135deg, rgba(74,59,50,0.72) 0%, rgba(90,70,58,0.55) 50%, rgba(51,39,32,0.80) 100%)',
+              }}
+            />
             <div
               className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-30 blur-3xl"
               style={{ background: 'radial-gradient(closest-side, #C5A059, transparent)' }}
