@@ -455,8 +455,26 @@ export default function Home() {
       </section>
 
       {/* ============ 4-STEP JOURNEY ============ */}
-      <section className="bg-secondary-bg py-16 sm:py-24">
-        <div className="container-lux">
+      <section className="relative overflow-hidden bg-secondary-bg py-16 sm:py-24">
+        {/* ── Background: blurred transformation visual ── */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: 'url(https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794945808/gadaesthetics/transform/cw9zixoe5gnegh6fiig1.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center 28%',
+            filter: 'blur(6px)',
+            transform: 'scale(1.08)',
+          }}
+        />
+        {/* ── Soft luxury warm-cream overlay so steps and text stay perfectly readable ── */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,252,248,0.85) 0%, rgba(246,241,232,0.80) 50%, rgba(255,252,248,0.87) 100%)',
+          }}
+        />
+        <div className="container-lux relative z-10">
           <SectionHeading
             eyebrow="Your Journey With Us"
             title="How We"
