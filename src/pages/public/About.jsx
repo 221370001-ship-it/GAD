@@ -387,13 +387,13 @@ export default function About() {
         />
         <div className="container-lux relative">
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
-            {/* Left Column: GAD Story & Narrative */}
+            {/* Left Column: GAD Story & Narrative — on mobile appears AFTER image */}
             <motion.div
               initial={{ opacity: 0, x: -24 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.7, ease: 'easeOut' }}
-              className="lg:col-span-7"
+              className="order-2 lg:order-1 lg:col-span-7"
             >
               <div className="flex flex-col items-center text-center mb-6">
                 <h2 className="font-heading leading-none text-brand-dark">
@@ -435,13 +435,13 @@ export default function About() {
               </div>
             </motion.div>
 
-            {/* Right Column: Tailored Portrait Image Frame with Smooth Hover Zoom */}
+            {/* Right Column: Tailored Portrait Image Frame with Smooth Hover Zoom — on mobile appears FIRST */}
             <motion.div
               initial={{ opacity: 0, x: 24, scale: 0.98 }}
               whileInView={{ opacity: 1, x: 0, scale: 1 }}
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: 0.7, ease: 'easeOut' }}
-              className="lg:col-span-5"
+              className="order-1 lg:order-2 lg:col-span-5"
             >
               <div className="group relative mx-auto max-w-sm sm:max-w-md lg:max-w-none">
                 {/* Subtle Luxury Outer Glow */}

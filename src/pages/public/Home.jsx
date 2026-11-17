@@ -88,17 +88,33 @@ export default function Home() {
             highlight="Consultation"
             description="Schedule your in-clinic visit below — or book a video consultation from anywhere in the world. Our team confirms every request personally."
           />
-          <motion.div {...fadeUp} className="card-lux mx-auto mt-12 max-w-6xl p-6 sm:p-10">
-            <div className="mb-8 flex items-center gap-4">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-gold-soft text-accent-gold-deep">
-                <CalendarCheck size={22} strokeWidth={1.7} />
-              </span>
-              <div>
-                <h3 className="font-heading text-2xl font-semibold text-brand-dark">Book Your Consultation</h3>
-                <p className="text-xs uppercase tracking-widest text-brand-light/70">In-Clinic · Gujranwala</p>
+          <motion.div {...fadeUp} className="card-lux relative mx-auto mt-12 max-w-6xl overflow-hidden p-6 sm:p-10">
+            {/* Background image with overlay */}
+            <img
+              src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794943475/gadaesthetics/consultation/z2lppybcmx9gb0izxwzw.jpg"
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+              style={{ opacity: 0.13 }}
+            />
+            {/* Soft gradient overlay so text stays readable */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.88) 0%, rgba(255,248,236,0.80) 100%)' }}
+            />
+            {/* Content */}
+            <div className="relative z-10">
+              <div className="mb-8 flex items-center gap-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-gold-soft text-accent-gold-deep">
+                  <CalendarCheck size={22} strokeWidth={1.7} />
+                </span>
+                <div>
+                  <h3 className="font-heading text-2xl font-semibold text-brand-dark">Book Your Consultation</h3>
+                  <p className="text-xs uppercase tracking-widest text-brand-light/70">In-Clinic · Gujranwala</p>
+                </div>
               </div>
+              <BookingSection />
             </div>
-            <BookingSection />
           </motion.div>
         </div>
       </section>
@@ -148,15 +164,16 @@ export default function Home() {
           </div>
 
           <div className="mt-8 grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
-            {/* Left: Pure Doctor Image Frame (Ready for Dr. Abdullah Asif's photo) */}
+            {/* Left: Dr. Abdullah Asif Photo */}
             <motion.div {...fadeUp}>
               <div className="relative mx-auto max-w-sm lg:max-w-md">
-                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-accent-gold/40 bg-gradient-to-br from-[#EFE6D8] via-[#F3E9D2] to-[#E7D9BF] shadow-lift">
-                  <Botanical className="left-2 top-2 h-44 w-44" />
-                  <Botanical className="bottom-2 right-2 h-44 w-44" flip />
-                  <span className="absolute inset-0 flex items-center justify-center font-heading text-9xl font-bold text-brand-dark/15">
-                    DA
-                  </span>
+                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-accent-gold/40 shadow-lift">
+                  <img
+                    src="https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794943476/gadaesthetics/doctor/kqh6w9pmts3yuvmlvaud.jpg"
+                    alt="Dr. Abdullah Asif – CEO & Founder, GAD Aesthetic Clinic"
+                    className="h-full w-full object-cover object-top"
+                    onError={e => { e.currentTarget.src = '/doctor/dr-abdullah-asif.jpg'; }}
+                  />
                 </div>
                 <div className="absolute -right-3 -top-3 -z-10 h-full w-full rounded-3xl border border-accent-gold/30" />
               </div>
@@ -169,7 +186,10 @@ export default function Home() {
                 {CLINIC.doctor}
               </h3>
               <p className="mt-2 text-sm font-semibold tracking-wider text-accent-gold sm:text-base">
-                CEO & Co-founder
+                CEO & Founder
+              </p>
+              <p className="mt-1 text-xs tracking-wide text-brand-light/70">
+                CEO & Founder of GAD Aesthetic Clinic
               </p>
               <div className="mt-4 h-px w-16 bg-accent-gold" />
               <p className="mt-5 text-[15px] leading-relaxed text-brand-light">
