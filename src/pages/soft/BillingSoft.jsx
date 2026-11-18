@@ -278,69 +278,109 @@ export function buildReceiptHTML(invoiceNum, cust, items, sub, disc, final, paym
 
 export function printViaIframe(html) {
   return new Promise((resolve) => {
-    // Remove any leftover print iframe from a previous call
+    // ── window.open() approach: most reliable method for thermal printers ──
+    // Opens a real browser window (fully rendered by Chrome), prints, then closes.
+    // This avoids all iframe visibility/rendering issues that cause blank paper.
+    const printWin = window.open('', '_blank', 'width=400,height=700,toolbar=0,menubar=0,scrollbars=0');
+
+    if (!printWin) {
+      // Popup blocked — fallback to iframe approach
+      _printViaIframeFallback(html).then(resolve);
+      return;
+    }
+
+    printWin.document.open();
+    printWin.document.write(html);
+    printWin.document.close();
+
+    let didPrint = false;
+
+    function afterPrintHandler() {
+      if (!didPrint) {
+        didPrint = true;
+        setTimeout(() => {
+          try { printWin.close(); } catch (_) { /* ignored */ }
+          resolve();
+        }, 500);
+      }
+    }
+
+    // Listen for afterprint event
+    printWin.addEventListener('afterprint', afterPrintHandler, { once: true });
+
+    // Safety: auto-close after 60s if user cancels dialog
+    const safetyTimer = setTimeout(() => {
+      try { printWin.close(); } catch (_) { /* ignored */ }
+      resolve();
+    }, 60000);
+
+    // Wait for full render (logo image + fonts), then trigger print
+    printWin.onload = () => {
+      clearTimeout(safetyTimer); // reset safety timer after load
+      setTimeout(() => {
+        try {
+          printWin.focus();
+          printWin.print();
+        } catch (err) {
+          console.warn('[GAD] printWin.print() error:', err);
+          resolve();
+        }
+      }, 400);
+    };
+
+    // Fallback if onload doesn't fire
+    setTimeout(() => {
+      if (!didPrint) {
+        try {
+          printWin.focus();
+          printWin.print();
+        } catch (_) { /* ignored */ }
+      }
+    }, 3000);
+  });
+}
+
+// ── Fallback iframe printer (used only if popup is blocked) ──────────────────
+function _printViaIframeFallback(html) {
+  return new Promise((resolve) => {
     const old = document.getElementById('__receipt_print_frame');
     if (old) old.remove();
 
     const iframe = document.createElement('iframe');
     iframe.id = '__receipt_print_frame';
-    // Use a small but non-zero size so browsers render content before printing.
-    // Positioned off-screen with opacity 0.01 (NOT visibility:hidden, which blocks print rasterization).
     iframe.style.cssText =
-      'position:fixed;top:-2000px;left:-2000px;width:302px;height:600px;border:none;opacity:0.01;pointer-events:none;';
+      'position:fixed;top:-2000px;left:-2000px;width:302px;height:700px;border:none;opacity:0.01;pointer-events:none;';
     document.body.appendChild(iframe);
 
     let printed = false;
-    let safetyTimer = null;
+    const safetyTimer = setTimeout(() => { resolve(); }, 30000);
 
     function cleanup() {
-      if (safetyTimer) clearTimeout(safetyTimer);
-      setTimeout(() => {
-        try { iframe.remove(); } catch (_) { /* ignored */ }
-      }, 2000);
+      clearTimeout(safetyTimer);
+      setTimeout(() => { try { iframe.remove(); } catch (_) { /* ignored */ } }, 2000);
     }
 
     function doPrint() {
       if (printed) return;
       printed = true;
       try {
-        iframe.contentWindow.addEventListener('afterprint', () => {
-          cleanup();
-          resolve();
-        }, { once: true });
+        iframe.contentWindow.addEventListener('afterprint', () => { cleanup(); resolve(); }, { once: true });
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
       } catch (err) {
-        console.warn('[GAD] Print execution error:', err);
+        console.warn('[GAD] Iframe print error:', err);
         cleanup();
         resolve();
       }
     }
-
-    // Safety timeout: resolve after 30s so caller never hangs
-    safetyTimer = setTimeout(() => {
-      cleanup();
-      resolve();
-    }, 30000);
 
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
     iframeDoc.open();
     iframeDoc.write(html);
     iframeDoc.close();
 
-    // Wait for all content (including base64 logo image) to fully render.
-    // We use window.onload inside the iframe to detect when images are ready.
-    iframe.onload = () => {
-      // Additional 350ms settle time for font + layout rendering
-      setTimeout(doPrint, 350);
-    };
-
-    // Fallback: if onload doesn't fire within 2.5s (some browsers), trigger anyway
-    setTimeout(() => {
-      if (!printed) {
-        setTimeout(doPrint, 350);
-      }
-    }, 2500);
+    iframe.onload = () => { setTimeout(doPrint, 400); };
+    setTimeout(() => { if (!printed) setTimeout(doPrint, 400); }, 2500);
   });
 }
 
