@@ -76,7 +76,7 @@ export function buildReceiptHTML(invoiceNum, cust, items, sub, disc, final, paym
   <style>
     /* ── SpeedX SP-210 — 80mm thermal paper, ~72mm printable area ── */
     @page {
-      size: 72mm auto;
+      size: auto;
       margin: 0mm;
     }
     @media print {
@@ -84,6 +84,13 @@ export function buildReceiptHTML(invoiceNum, cust, items, sub, disc, final, paym
         width: 72mm !important;
         margin: 0 !important;
         padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .receipt {
+        width: 72mm !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
       }
     }
     * {
@@ -277,31 +284,30 @@ export function printViaIframe(html) {
 
     const iframe = document.createElement('iframe');
     iframe.id = '__receipt_print_frame';
-    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;visibility:hidden;';
+    // Use a small but non-zero size so browsers render content before printing.
+    // Positioned off-screen with opacity 0.01 (NOT visibility:hidden, which blocks print rasterization).
+    iframe.style.cssText =
+      'position:fixed;top:-2000px;left:-2000px;width:302px;height:600px;border:none;opacity:0.01;pointer-events:none;';
     document.body.appendChild(iframe);
 
     let printed = false;
-    let fallbackTimer = null;
     let safetyTimer = null;
 
     function cleanup() {
       if (safetyTimer) clearTimeout(safetyTimer);
-      if (fallbackTimer) clearTimeout(fallbackTimer);
       setTimeout(() => {
         try { iframe.remove(); } catch (_) { /* ignored */ }
-      }, 1000);
+      }, 2000);
     }
 
     function doPrint() {
       if (printed) return;
       printed = true;
-      if (fallbackTimer) clearTimeout(fallbackTimer);
       try {
         iframe.contentWindow.addEventListener('afterprint', () => {
           cleanup();
           resolve();
         }, { once: true });
-
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
       } catch (err) {
@@ -311,24 +317,30 @@ export function printViaIframe(html) {
       }
     }
 
-    // Safety timeout: resolve after 25s so caller never hangs
+    // Safety timeout: resolve after 30s so caller never hangs
     safetyTimer = setTimeout(() => {
       cleanup();
       resolve();
-    }, 25000);
+    }, 30000);
 
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
     iframeDoc.open();
     iframeDoc.write(html);
     iframeDoc.close();
 
-    // Give browser 200ms to layout the iframe receipt content, then print
+    // Wait for all content (including base64 logo image) to fully render.
+    // We use window.onload inside the iframe to detect when images are ready.
     iframe.onload = () => {
-      setTimeout(doPrint, 200);
+      // Additional 350ms settle time for font + layout rendering
+      setTimeout(doPrint, 350);
     };
 
-    // Fallback if iframe.onload doesn't fire
-    fallbackTimer = setTimeout(doPrint, 1500);
+    // Fallback: if onload doesn't fire within 2.5s (some browsers), trigger anyway
+    setTimeout(() => {
+      if (!printed) {
+        setTimeout(doPrint, 350);
+      }
+    }, 2500);
   });
 }
 

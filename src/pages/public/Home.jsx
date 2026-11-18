@@ -96,15 +96,16 @@ export default function Home() {
                 backgroundImage: 'url(https://res.cloudinary.com/frbrngr7/image/upload/q_auto:best,f_auto/v1794943475/gadaesthetics/consultation/z2lppybcmx9gb0izxwzw.jpg)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center top',
-                filter: 'blur(6px)',
-                transform: 'scale(1.08)',
+                filter: 'blur(3px)',
+                transform: 'scale(1.06)',
+                opacity: 0.75,
               }}
             />
             {/* ── Soft warm-white overlay so form stays perfectly readable ── */}
             <div
               className="pointer-events-none absolute inset-0"
               style={{
-                background: 'linear-gradient(135deg, rgba(255,252,248,0.82) 0%, rgba(255,245,230,0.78) 50%, rgba(255,252,248,0.82) 100%)',
+                background: 'linear-gradient(135deg, rgba(255,252,248,0.65) 0%, rgba(255,245,230,0.60) 50%, rgba(255,252,248,0.65) 100%)',
               }}
             />
             {/* ── Form content ── */}
@@ -406,7 +407,7 @@ export default function Home() {
                     />
                   </div>
                   <div className="absolute bottom-3 left-3 rounded-full bg-brand-deep/80 px-3.5 py-1 text-[11px] font-semibold tracking-wider text-accent-gold backdrop-blur-md">
-                    Procedure & Surgery Suite
+                 Procedure Suite
                   </div>
                 </div>
               </motion.div>
@@ -417,7 +418,7 @@ export default function Home() {
               >
                 <span className="section-eyebrow">Sterile Excellence & Advanced Tech</span>
                 <h3 className="font-heading text-2xl font-semibold text-brand-dark sm:text-3xl">
-                  Clinical Procedure & Surgery Suites
+                  Clinical Procedures
                 </h3>
                 <div className="mt-3 h-px w-14 bg-accent-gold" />
                 <p className="mt-4 text-[15px] leading-relaxed text-brand-light">
