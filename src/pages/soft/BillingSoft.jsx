@@ -293,11 +293,13 @@ export function printViaIframe(html) {
     printWin.document.write(html);
     printWin.document.close();
 
-    let didPrint = false;
+    let printTriggered = false; // tracks if print() was called
+    let didClose = false;       // tracks if window was closed/resolved
 
-    function afterPrintHandler() {
-      if (!didPrint) {
-        didPrint = true;
+    function closeAndResolve() {
+      if (!didClose) {
+        didClose = true;
+        clearTimeout(safetyTimer);
         setTimeout(() => {
           try { printWin.close(); } catch (_) { /* ignored */ }
           resolve();
@@ -305,36 +307,38 @@ export function printViaIframe(html) {
       }
     }
 
-    // Listen for afterprint event
-    printWin.addEventListener('afterprint', afterPrintHandler, { once: true });
+    // Listen for afterprint event (fires when user clicks Print or Cancel in dialog)
+    printWin.addEventListener('afterprint', closeAndResolve, { once: true });
 
-    // Safety: auto-close after 60s if user cancels dialog
+    // Safety: auto-close after 60s if user ignores dialog
     const safetyTimer = setTimeout(() => {
-      try { printWin.close(); } catch (_) { /* ignored */ }
-      resolve();
+      closeAndResolve();
     }, 60000);
 
-    // Wait for full render (logo image + fonts), then trigger print
+    // Wait for full render (logo + fonts), then trigger print dialog ONCE
     printWin.onload = () => {
-      clearTimeout(safetyTimer); // reset safety timer after load
-      setTimeout(() => {
-        try {
-          printWin.focus();
-          printWin.print();
-        } catch (err) {
-          console.warn('[GAD] printWin.print() error:', err);
-          resolve();
-        }
-      }, 400);
+      if (!printTriggered) {
+        printTriggered = true;
+        setTimeout(() => {
+          try {
+            printWin.focus();
+            printWin.print();
+          } catch (err) {
+            console.warn('[GAD] printWin.print() error:', err);
+            closeAndResolve();
+          }
+        }, 400);
+      }
     };
 
-    // Fallback if onload doesn't fire
+    // Fallback: if onload never fires within 3s, trigger print once anyway
     setTimeout(() => {
-      if (!didPrint) {
+      if (!printTriggered) {
+        printTriggered = true;
         try {
           printWin.focus();
           printWin.print();
-        } catch (_) { /* ignored */ }
+        } catch (_) { closeAndResolve(); }
       }
     }, 3000);
   });
